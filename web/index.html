@@ -361,16 +361,12 @@ footer.site{border-top:1px solid var(--border);padding:60px 0 40px;position:rela
     <ul class="nav-links" id="navLinks">
       <li><a href="/playground">Playground</a></li>
       <li><a href="/guestbook">Live Demo</a></li>
-      <li><a href="/benchmark">Benchmark</a></li>
-      <li><a href="#token">$FABY</a></li>
-      <li><a href="#features">Features</a></li>
-      <li><a href="#code">Code</a></li>
-      <li><a href="#docs">Docs</a></li>
+      <li><a href="/docs">Docs</a></li>
       <li><a href="/cli">CLI</a></li>
-      <li><a href="#roadmap">Roadmap</a></li>
+      <li><a href="#token">$FABY</a></li>
     </ul>
     <div style="display:flex;gap:12px;align-items:center">
-      <a href="/docs" class="btn btn-solid nav-cta">Read the Docs</a>
+      <a href="https://github.com/fabylanguage/faby" target="_blank" rel="noopener" class="btn btn-solid nav-cta">★ GitHub</a>
       <button class="burger" id="burger" aria-label="Menu">≡</button>
     </div>
   </div>
@@ -496,7 +492,7 @@ footer.site{border-top:1px solid var(--border);padding:60px 0 40px;position:rela
     <div class="showcase reveal">
       <div class="tabs" role="tablist">
         <button class="tab active" data-panel="p1"><b>Hello, Faby</b><span>basics · flows · strings</span></button>
-        <button class="tab" data-panel="p2"><b>Web Service</b><span>http · routing · contracts</span></button>
+        <button class="tab" data-panel="p2"><b>Web App</b><span>use ui · use http · declarative</span></button>
         <button class="tab" data-panel="p3"><b>AI Agent</b><span>stdlib ai · intent · recovery</span></button>
         <button class="tab" data-panel="p4"><b>Data Pipeline</b><span>spawn · pipes · match</span></button>
       </div>
@@ -523,23 +519,23 @@ flow describe(n: Int) -> Text
         </div>
         <div class="code-panel" id="p2">
           <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>server.fy</span></div>
-<pre class="term-body" data-faby>-- a REAL web server — runs today: faby run server.fy
+<pre class="term-body" data-faby>-- a full web app — declarative UI, no HTML strings. runs today.
 use http
+use ui
 
-flow health(req)
-  {status: "ok", lang: "faby"}
+flow page(req)
+  ui.page("Hello", [
+    ui.h1("Built with Faby"),
+    ui.muted("Frontend + backend, one language."),
+    ui.card([
+      ui.p("This whole page is Faby components,"),
+      ui.p("rendered to HTML, served by faby run.")
+    ]),
+    ui.link("/guestbook", "See the live guestbook")
+  ])
 
-flow greet(req) -> Text
-  "&lt;h1&gt;Hi, {req.params.name}!&lt;/h1&gt;"
-
-flow add(req)
-  {sum: req.body.a + req.body.b}
-
-intent "serve a tiny JSON + HTML API"
 flow main
-  http.get("/health", health)
-  http.get("/hi/:name", greet)
-  http.post("/add", add)
+  http.get("/", page)
   http.serve(8080)</pre></div>
           <p style="text-align:center;margin-top:14px;font-size:14px"><a href="/guestbook" style="color:#fff;text-decoration:none;border-bottom:1px solid var(--border-2)">▶ See a real Faby web app running live → /guestbook</a></p>
         </div>
@@ -799,7 +795,7 @@ Hello, Faby.
       <div class="foot-cols">
         <div class="foot-col"><b>Language</b><a href="/playground">Playground</a><a href="/guestbook">Live App Demo</a><a href="/benchmark">Benchmark</a><a href="#philosophy">Philosophy</a><a href="#roadmap">Roadmap</a></div>
         <div class="foot-col"><b>Documentation</b><a href="/docs#introduction">Introduction</a><a href="/docs#installation">Installation</a><a href="/docs#basics">Language Tour</a><a href="/cli">CLI Reference</a><a href="https://www.npmjs.com/package/@fabycode/cli" target="_blank" rel="noopener">@fabycode/cli on NPM</a></div>
-        <div class="foot-col"><b>Project</b><a href="#">GitHub</a><a href="#">Specification</a><a href="#">Brand Assets</a><a href="#token">$FABY Token</a></div>
+        <div class="foot-col"><b>Project</b><a href="https://github.com/fabylanguage/faby" target="_blank" rel="noopener">GitHub</a><a href="/docs">Specification</a><a href="/guestbook">Live App</a><a href="#token">$FABY Token</a></div>
         <div class="foot-col"><b>Social</b><a href="https://x.com/fabylanguage" target="_blank" rel="noopener">X / @fabylanguage</a><a href="https://pump.fun/coin/52KiTkmHePbPjNQ74SwcUwBnVaCDbCZZd8XYoFjYpump" target="_blank" rel="noopener">pump.fun</a></div>
       </div>
     </div>

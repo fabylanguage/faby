@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="38%" r="80%">
+      <stop offset="0%" stop-color="#161616"/><stop offset="55%" stop-color="#080808"/><stop offset="100%" stop-color="#000000"/>
+    </radialGradient>
+    <pattern id="grid" width="64" height="64" patternUnits="userSpaceOnUse">
+      <path d="M 64 0 L 0 0 0 64" fill="none" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+    </pattern>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.10"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#glow)"/>
+  <rect width="1920" height="1080" fill="url(#grid)"/>
+  <rect x="40" y="40" width="1840" height="1000" fill="none" stroke="#ffffff" stroke-opacity="0.12" stroke-width="2"/>
+  <g stroke="#ffffff" stroke-opacity="0.6" stroke-width="3" stroke-linecap="round">
+    <path d="M 40 88 V 40 H 88"/><path d="M 1832 40 H 1880 V 88"/>
+    <path d="M 1880 992 V 1040 H 1832"/><path d="M 88 1040 H 40 V 992"/>
+  </g>
+
+  <text x="96" y="120" fill="#ffffff" fill-opacity="0.55" font-size="26" letter-spacing="8" font-weight="500">FABY // AI-NATIVE LANGUAGE</text>
+  <rect x="1540" y="92" width="284" height="40" rx="8" fill="#ffffff"/>
+  <text x="1682" y="119" text-anchor="middle" fill="#000" font-size="21" letter-spacing="1.5" font-weight="800">NOW OPEN SOURCE</text>
+  <line x1="96" y1="150" x2="1824" y2="150" stroke="url(#fade)" stroke-width="2"/>
+
+  <text x="92" y="312" fill="#ffffff" font-size="130" font-weight="800" letter-spacing="-2">Read the code.</text>
+  <text x="92" y="448" fill="#ffffff" font-size="130" font-weight="800" letter-spacing="-2">Build it. Run it.</text>
+  <text x="96" y="524" fill="#ffffff" fill-opacity="0.6" font-size="29" letter-spacing="3">INTERPRETER &#183; CLI &#183; WEBSITE &#183; THE FIRST FULL WEB APP BUILT IN FABY &#8212; ALL PUBLIC</text>
+
+  <!-- repo tree pane -->
+  <g font-family="'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace">
+    <rect x="96" y="582" width="860" height="380" rx="14" fill="#0a0a0a" stroke="#ffffff" stroke-opacity="0.18"/>
+    <line x1="96" y1="626" x2="956" y2="626" stroke="#ffffff" stroke-opacity="0.12"/>
+    <text x="128" y="614" font-size="20" fill="#ffffff" fill-opacity="0.5">github.com/fabylanguage/faby</text>
+    <text x="936" y="614" text-anchor="end" font-size="20" fill="#ffffff" fill-opacity="0.35">main &#183; CI &#10003;</text>
+    <text x="128" y="672" font-size="24" fill="#ffffff" fill-opacity="0.85">interpreter/   <tspan fill="#5a5a5a">the Faby engine + tooling</tspan></text>
+    <text x="128" y="708" font-size="24" fill="#ffffff" fill-opacity="0.85">cli/           <tspan fill="#5a5a5a">@fabycode/cli &#183; run check fmt test</tspan></text>
+    <text x="128" y="744" font-size="24" fill="#ffffff" fill-opacity="0.85">web/           <tspan fill="#5a5a5a">the whole faby.codes site</tspan></text>
+    <text x="128" y="780" font-size="24" fill="#ffffff">demo/guestbook.fy  <tspan fill="#5a5a5a">&#8592; a full web app, in Faby</tspan></text>
+    <text x="128" y="816" font-size="24" fill="#ffffff" fill-opacity="0.85">build/         <tspan fill="#5a5a5a">standalone-binary build</tspan></text>
+    <text x="128" y="852" font-size="24" fill="#ffffff" fill-opacity="0.85">vscode-faby/   <tspan fill="#5a5a5a">editor extension</tspan></text>
+    <text x="128" y="888" font-size="24" fill="#ffffff" fill-opacity="0.85">benchmark/     <tspan fill="#5a5a5a">reproducible token benchmark</tspan></text>
+    <text x="128" y="930" font-size="23" fill="#ffffff" fill-opacity="0.45">MIT &#183; no secrets &#183; honest shipped-vs-roadmap README</text>
+  </g>
+
+  <!-- highlight pane: the web app -->
+  <g font-family="'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace">
+    <rect x="980" y="582" width="844" height="380" rx="14" fill="#0a0a0a" stroke="#ffffff" stroke-opacity="0.3"/>
+    <line x1="980" y1="626" x2="1824" y2="626" stroke="#ffffff" stroke-opacity="0.12"/>
+    <text x="1012" y="614" font-size="20" fill="#ffffff" fill-opacity="0.5">demo/guestbook.fy</text>
+    <text x="1804" y="614" text-anchor="end" font-size="20" fill="#ffffff" fill-opacity="0.6">LIVE</text>
+    <text x="1012" y="676" font-size="24" fill="#ffffff"><tspan fill="#ffffff" font-weight="700">use</tspan> http</text>
+    <text x="1012" y="710" font-size="24" fill="#ffffff"><tspan fill="#ffffff" font-weight="700">use</tspan> store</text>
+    <text x="1012" y="768" font-size="24" fill="#ffffff"><tspan fill="#ffffff" font-weight="700">flow</tspan> main</text>
+    <text x="1044" y="802" font-size="24" fill="#ffffff">http.get("/guestbook", page)</text>
+    <text x="1044" y="836" font-size="24" fill="#ffffff">http.post("/guestbook/sign", sign)</text>
+    <text x="1044" y="870" font-size="24" fill="#ffffff">http.serve(8080)</text>
+    <text x="1012" y="924" font-size="23" fill="#ffffff" fill-opacity="0.6">frontend + backend + persistence &#183; one file</text>
+  </g>
+
+  <text x="96" y="1014" fill="#ffffff" fill-opacity="0.85" font-size="30" font-family="'SF Mono', Menlo, monospace" letter-spacing="1">&#9733; github.com/fabylanguage/faby</text>
+  <text x="1824" y="1014" text-anchor="end" fill="#ffffff" fill-opacity="0.5" font-size="26" letter-spacing="3">FABY.CODES</text>
+</svg>

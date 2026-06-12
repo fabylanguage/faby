@@ -12,9 +12,23 @@ function FabyError(msg, line) {
 
 /* ---------------- preprocessing ---------------- */
 
+function bracketDelta(text) {
+  // net (+open) bracket depth of a line, ignoring brackets inside string literals
+  let d = 0, inStr = false;
+  for (let j = 0; j < text.length; j++) {
+    const c = text[j];
+    if (c === '"' && text[j - 1] !== '\\') { inStr = !inStr; continue; }
+    if (inStr) continue;
+    if (c === '(' || c === '[' || c === '{') d++;
+    else if (c === ')' || c === ']' || c === '}') d--;
+  }
+  return d;
+}
+
 function logicalLines(src) {
   const raw = src.split('\n');
   const out = [];
+  let depth = 0;  // open-bracket depth carried across physical lines
   for (let i = 0; i < raw.length; i++) {
     let text = raw[i];
     let s = '', inStr = false;
@@ -25,15 +39,22 @@ function logicalLines(src) {
       s += c;
     }
     text = s;
-    if (!text.trim()) continue;
-    const indent = text.match(/^ */)[0].length;
     const trimmed = text.trim();
+    // inside an unbalanced bracket → continuation of the previous logical line
+    if (depth > 0 && out.length) {
+      if (trimmed) { out[out.length - 1].text += ' ' + trimmed; depth += bracketDelta(text); }
+      continue;
+    }
+    if (!trimmed) continue;
+    const indent = text.match(/^ */)[0].length;
     // line continuations: |> and ? pull onto previous logical line
     if (out.length && (trimmed.startsWith('|>') || trimmed.startsWith('?'))) {
       out[out.length - 1].text += ' ' + trimmed;
+      depth += bracketDelta(text);
       continue;
     }
     out.push({ indent, text: trimmed, line: i + 1 });
+    depth = bracketDelta(text);
   }
   return out;
 }
@@ -206,7 +227,7 @@ ExprParser.prototype = {
     if (t.t === 'op' && t.v === '[') {
       const items = [];
       while (!this.atOp(']')) {
-        items.push(this.parseExpr(2));
+        items.push(this.parseExpr(1));
         if (this.atOp(',')) this.next(); else break;
       }
       this.expectOp(']');
@@ -222,7 +243,7 @@ ExprParser.prototype = {
         else if (kt && kt.t === 'str') key = kt.parts.map(p => p.t === 'text' ? p.v : '').join('');
         else throw FabyError('expected a field name in {…}', this.line);
         this.expectOp(':');
-        pairs.push({ key, val: this.parseExpr(2) });
+        pairs.push({ key, val: this.parseExpr(1) });
         if (this.atOp(',')) this.next(); else break;
       }
       this.expectOp('}');
@@ -497,6 +518,80 @@ Interp.prototype.storeModule = function () {
   };
 };
 
+/* ---- ui module: declarative components → HTML (with a built-in theme) ---- */
+function escHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+const UI_VOID = { meta: 1, input: 1, br: 1, hr: 1, img: 1 };
+const UI_CSS =
+  ':root{--bg:#030303;--card:#0a0a0a;--bd:#1d1d1d;--bd2:#2c2c2c;--tx:#f0f0f0;--mut:#8f8f8f;--dim:#5a5a5a}' +
+  '*{box-sizing:border-box}body{background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,Segoe UI,sans-serif;line-height:1.6;max-width:680px;margin:0 auto;padding:48px 20px}' +
+  'h1{letter-spacing:-1px;font-size:32px;margin:0 0 6px}h2{letter-spacing:-.5px}p{margin:8px 0}a{color:#fff}' +
+  '.muted{color:var(--dim);font-size:13px}.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px 18px;margin:10px 0}' +
+  'ul.faby-list{list-style:none;padding:0;margin:16px 0}ul.faby-list>li{border:1px solid var(--bd);border-radius:10px;padding:14px 16px;margin:10px 0}' +
+  'form.faby-form{display:flex;flex-direction:column;gap:10px;margin:22px 0}' +
+  'input,textarea{background:var(--card);border:1px solid var(--bd2);border-radius:8px;color:#fff;padding:12px;font:inherit;width:100%}textarea{min-height:90px}' +
+  'button{background:#fff;color:#000;border:0;border-radius:8px;padding:12px;font-weight:700;cursor:pointer;font-size:15px}button:hover{box-shadow:0 0 24px rgba(255,255,255,.3)}' +
+  '.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.strong{font-weight:700}';
+
+function renderEl(node) {
+  if (node === null || node === undefined) return '';
+  if (typeof node === 'string') return escHtml(node);
+  if (Array.isArray(node)) return node.map(renderEl).join('');
+  if (typeof node === 'object' && node.__el) {
+    if (node.tag === '#doc')
+      return '<!doctype html><html lang="en">' + renderEl(node.kids) + '</html>';
+    if (node.tag === '#text') return escHtml(node.text);
+    if (node.tag === '#raw') return node.text;
+    let attrs = '';
+    const a = node.attrs || {};
+    for (const k in a) {
+      if (a[k] === true) attrs += ' ' + k;
+      else if (a[k] !== false && a[k] !== null && a[k] !== undefined) attrs += ' ' + k + '="' + escHtml(a[k]) + '"';
+    }
+    if (UI_VOID[node.tag]) return '<' + node.tag + attrs + '>';
+    return '<' + node.tag + attrs + '>' + renderEl(node.kids) + '</' + node.tag + '>';
+  }
+  return escHtml(fmt(node));
+}
+
+Interp.prototype.uiModule = function () {
+  const el = (tag, attrs, kids) => ({ __el: true, tag, attrs: attrs || {}, kids: kids === undefined ? [] : kids });
+  const txt = (s) => ({ __el: true, tag: '#text', text: s === null || s === undefined ? '' : fmt(s) });
+  return {
+    // page wrapper: injects <head> + the built-in theme, body = children list
+    page: { native: true, fn: (a) => el('#doc', {}, [
+      el('head', {}, [
+        el('meta', { charset: 'utf-8' }),
+        el('meta', { name: 'viewport', content: 'width=device-width,initial-scale=1' }),
+        el('title', {}, [txt(a[0])]),
+        { __el: true, tag: 'style', kids: [{ __el: true, tag: '#raw', text: UI_CSS }] }
+      ]),
+      el('body', {}, Array.isArray(a[1]) ? a[1] : (a[1] !== undefined ? [a[1]] : []))
+    ]) },
+    // text
+    h1: { native: true, fn: (a) => el('h1', {}, [txt(a[0])]) },
+    h2: { native: true, fn: (a) => el('h2', {}, [txt(a[0])]) },
+    p: { native: true, fn: (a) => el('p', {}, [txt(a[0])]) },
+    text: { native: true, fn: (a) => txt(a[0]) },
+    strong: { native: true, fn: (a) => el('span', { class: 'strong' }, [txt(a[0])]) },
+    muted: { native: true, fn: (a) => el('span', { class: 'muted' }, [txt(a[0])]) },
+    link: { native: true, fn: (a) => el('a', { href: a[0] }, [txt(a[1])]) },
+    // containers (children = a list)
+    card: { native: true, fn: (a) => el('div', { class: 'card' }, kids(a[0])) },
+    box: { native: true, fn: (a) => el('div', {}, kids(a[0])) },
+    row: { native: true, fn: (a) => el('div', { class: 'row' }, kids(a[0])) },
+    list: { native: true, fn: (a) => el('ul', { class: 'faby-list' }, kids(a[0])) },
+    item: { native: true, fn: (a) => el('li', {}, kids(a[0])) },
+    // forms
+    form: { native: true, fn: (a) => el('form', { class: 'faby-form', method: 'post', action: a[0] }, kids(a[1])) },
+    input: { native: true, fn: (a) => el('input', { name: a[0], placeholder: a[1] || '', required: true }) },
+    textarea: { native: true, fn: (a) => el('textarea', { name: a[0], placeholder: a[1] || '', required: true }) },
+    button: { native: true, fn: (a) => el('button', {}, [txt(a[0])]) }
+  };
+  function kids(v) { return Array.isArray(v) ? v : (v !== undefined && v !== null ? [v] : []); }
+};
+
 /* ---- http module (Node-backed; not available in the browser) ---- */
 function matchPath(pattern, path) {
   const ps = pattern.split('/').filter(Boolean);
@@ -517,7 +612,8 @@ function sendResult(res, v) {
     if (v.headers) Object.assign(headers, v.headers);
     v = v.body;
   }
-  if (v && typeof v === 'object') { headers['content-type'] = headers['content-type'] || 'application/json'; body = JSON.stringify(v); }
+  if (v && typeof v === 'object' && v.__el) { headers['content-type'] = headers['content-type'] || 'text/html; charset=utf-8'; body = renderEl(v); }
+  else if (v && typeof v === 'object') { headers['content-type'] = headers['content-type'] || 'application/json'; body = JSON.stringify(v); }
   else if (typeof v === 'string') { headers['content-type'] = headers['content-type'] || 'text/html; charset=utf-8'; body = v; }
   else { headers['content-type'] = headers['content-type'] || 'text/plain; charset=utf-8'; body = (v === null || v === undefined) ? '' : fmt(v); }
   res.writeHead(status, headers);
@@ -799,6 +895,7 @@ function runFaby(source) {
     for (const name of Object.keys(b)) root.declare(name, { native: true, fn: b[name] }, false);
     root.declare('http', interp.httpModule(), false);   // `use http` module
     root.declare('store', interp.storeModule(), false);  // `use store` module
+    root.declare('ui', interp.uiModule(), false);        // `use ui` module
     interp.execBlock(block.stmts, root);
     const main = root.vars.main;
     if (main && main.v && main.v.flow) interp.callValue(main.v, [], 1);
@@ -820,7 +917,7 @@ function parseProgram(source) {
   return parseBlock(lines, 0, 0).stmts;
 }
 function builtinNames() {
-  try { return Object.keys(new Interp([]).builtins()).concat(['http', 'store']); } catch (e) { return ['http', 'store']; }
+  try { return Object.keys(new Interp([]).builtins()).concat(['http', 'store', 'ui']); } catch (e) { return ['http', 'store', 'ui']; }
 }
 
 global.runFaby = runFaby;

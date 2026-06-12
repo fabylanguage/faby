@@ -417,6 +417,26 @@ flow main
   http.post("/add", add)
   http.serve(8080)</pre></div>
     <div class="note"><b>Real, today</b><p>This runs in <code class="inline">@fabycode/cli</code> and the standalone binary — a working web server with no Node required. The interpreter is synchronous, so handlers are great for compute and in-memory/file data; async outbound calls land with the runtime work in a later release.</p></div>
+
+    <h3><code class="inline">use ui</code> — declarative components <span class="sb sb-shipped" style="margin-left:4px">Shipped</span></h3>
+    <p>Build frontends as <strong>Faby component trees</strong> — no HTML or CSS strings. Handlers return a UI element and Faby renders it to HTML, with a built-in dark theme and <strong>automatic escaping</strong> (XSS-safe by default). Containers (<code class="inline">ui.page</code>, <code class="inline">ui.card</code>, <code class="inline">ui.list</code>, <code class="inline">ui.form</code>, <code class="inline">ui.row</code>) take a list of children; text helpers (<code class="inline">ui.h1</code>, <code class="inline">ui.p</code>, <code class="inline">ui.muted</code>, <code class="inline">ui.strong</code>, <code class="inline">ui.link</code>) take text.</p>
+    <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>app.fy</span></div>
+<pre class="term-body" data-faby>use http
+use ui
+
+flow page(req)
+  ui.page("Hello", [
+    ui.h1("Built with Faby"),
+    ui.card([
+      ui.p("Frontend + backend, one language."),
+      ui.link("/about", "Learn more")
+    ])
+  ])
+
+flow main
+  http.get("/", page)
+  http.serve(8080)</pre></div>
+    <div class="note"><b>Where this is going</b><p>Today <code class="inline">use ui</code> renders to HTML server-side — real, polished, escaped frontends with zero markup. Client-side reactivity (compiling Faby UI to in-browser JS, Flutter-style) arrives with the compiler on the “Horizon” roadmap. Same component code, more targets.</p></div>
     <p>The standard library is small, audited and batteries-included for the AI era. Import modules with <code class="inline">use</code>.</p>
     <table>
       <tr><th>Module</th><th>Provides</th></tr>

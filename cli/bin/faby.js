@@ -10,7 +10,7 @@ globalThis.fabyBuiltinNames = interp.builtinNames;
 const { runFaby } = interp;
 const { fmtFaby, checkFaby, testFaby } = require('../lib/tools.js');
 
-const VERSION = '0.4.1';
+const VERSION = '0.4.2';
 const BANNER = `faby ${VERSION} (genesis) — designed by claude-fable-5`;
 
 const HELP = `${BANNER}
