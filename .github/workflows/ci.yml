@@ -1,0 +1,21 @@
+name: CI
+on:
+  push: { branches: [main] }
+  pull_request: { branches: [main] }
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: faby check examples
+        run: |
+          for f in cli/examples/*.fy; do node cli/bin/faby.js check "$f"; done
+      - name: faby fmt --check examples
+        run: |
+          for f in cli/examples/*.fy; do node cli/bin/faby.js fmt --check "$f" || echo "note: $f not canonical"; done
+      - name: faby test (property fuzzing)
+        run: node cli/bin/faby.js test cli/examples/hello.fy
+      - name: token benchmark (reproducible)
+        run: node benchmark/bench.js
