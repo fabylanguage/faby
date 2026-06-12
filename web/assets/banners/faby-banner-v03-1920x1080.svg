@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="38%" r="80%">
+      <stop offset="0%" stop-color="#161616"/>
+      <stop offset="55%" stop-color="#080808"/>
+      <stop offset="100%" stop-color="#000000"/>
+    </radialGradient>
+    <pattern id="grid" width="64" height="64" patternUnits="userSpaceOnUse">
+      <path d="M 64 0 L 0 0 0 64" fill="none" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+    </pattern>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#glow)"/>
+  <rect width="1920" height="1080" fill="url(#grid)"/>
+
+  <rect x="40" y="40" width="1840" height="1000" fill="none" stroke="#ffffff" stroke-opacity="0.12" stroke-width="2"/>
+  <g stroke="#ffffff" stroke-opacity="0.6" stroke-width="3" stroke-linecap="round">
+    <path d="M 40 88 V 40 H 88"/><path d="M 1832 40 H 1880 V 88"/>
+    <path d="M 1880 992 V 1040 H 1832"/><path d="M 88 1040 H 40 V 992"/>
+  </g>
+
+  <text x="96" y="120" fill="#ffffff" fill-opacity="0.55" font-size="26" letter-spacing="8" font-weight="500">FABY // AI-NATIVE LANGUAGE</text>
+  <rect x="1636" y="92" width="188" height="40" rx="8" fill="#ffffff"/>
+  <text x="1730" y="120" text-anchor="middle" fill="#000" font-size="22" letter-spacing="3" font-weight="800">v0.3 · LATTICE</text>
+  <line x1="96" y1="150" x2="1824" y2="150" stroke="url(#fade)" stroke-width="2"/>
+
+  <!-- headline -->
+  <text x="92" y="318" fill="#ffffff" font-size="142" font-weight="800" letter-spacing="-2">Your contracts</text>
+  <text x="92" y="462" fill="#ffffff" font-size="142" font-weight="800" letter-spacing="-2">are your tests.</text>
+  <text x="96" y="540" fill="#ffffff" fill-opacity="0.6" font-size="30" letter-spacing="4">PROPERTY FUZZING FROM expect/ensure &#183; spawn &#183; VS CODE &#183; SHIPPED</text>
+
+  <!-- terminal mock -->
+  <g font-family="'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace">
+    <rect x="96" y="600" width="1728" height="352" rx="16" fill="#0a0a0a" stroke="#ffffff" stroke-opacity="0.18"/>
+    <line x1="96" y1="652" x2="1824" y2="652" stroke="#ffffff" stroke-opacity="0.12" stroke-width="1"/>
+    <circle cx="138" cy="626" r="8" fill="#ffffff" fill-opacity="0.25"/>
+    <circle cx="166" cy="626" r="8" fill="#ffffff" fill-opacity="0.25"/>
+    <circle cx="194" cy="626" r="8" fill="#ffffff" fill-opacity="0.25"/>
+    <text x="1800" y="633" text-anchor="end" font-size="22" fill="#ffffff" fill-opacity="0.35">@fabycode/cli</text>
+
+    <text x="132" y="706" font-size="28" fill="#ffffff" fill-opacity="0.5">$</text>
+    <text x="166" y="706" font-size="28" fill="#ffffff">faby test billing.fy --props=300</text>
+    <text x="132" y="752" font-size="28" fill="#ffffff">&#10003; test  discount never exceeds price</text>
+    <text x="132" y="800" font-size="28" fill="#ffffff" fill-opacity="0.85">&#10007; property  halve  &#183;  0/300 inputs</text>
+    <text x="168" y="842" font-size="28" fill="#ffffff" fill-opacity="0.6">counterexample halve(-20) &#8594; contract violated: ensure</text>
+    <text x="132" y="908" font-size="28" fill="#ffffff" fill-opacity="0.5">the fuzzer found the bug. nobody wrote that test.</text>
+  </g>
+
+  <text x="96" y="1010" fill="#ffffff" fill-opacity="0.85" font-size="30" font-family="'SF Mono', Menlo, monospace" letter-spacing="1">$ npm i -g @fabycode/cli</text>
+  <text x="1824" y="1010" text-anchor="end" fill="#ffffff" fill-opacity="0.5" font-size="26" letter-spacing="3">FABY.CODES</text>
+</svg>

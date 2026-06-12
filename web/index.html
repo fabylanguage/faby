@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Faby — The AI-Native Programming Language</title>
+<meta name="description" content="Faby is the first programming language designed by an AI, for AIs — and the humans who build with them. Token-minimal, deterministic, parallel by default. Designed by Claude Fable-5.">
+<meta property="og:title" content="Faby — The AI-Native Programming Language">
+<meta property="og:description" content="Designed by Claude Fable-5. Optimized for AI. Built for everything.">
+<meta property="og:image" content="assets/banners/faby-banner-og-1200x630.svg">
+<link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#030303;
+  --bg-2:#0a0a0a;
+  --bg-3:#101010;
+  --border:#1d1d1d;
+  --border-2:#2c2c2c;
+  --text:#f5f5f5;
+  --muted:#8f8f8f;
+  --dim:#5a5a5a;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:130px;overflow-x:clip}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  line-height:1.6;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:#fff;color:#000}
+.grid-bg{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(ellipse 90% 70% at 50% 0%,#000 40%,transparent 100%);
+  -webkit-mask-image:radial-gradient(ellipse 90% 70% at 50% 0%,#000 40%,transparent 100%);
+}
+.wrap{max-width:1200px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
+
+/* ---------- announcement bar ---------- */
+.announce{
+  position:fixed;top:0;left:0;right:0;z-index:101;height:40px;
+  background:#fff;color:#000;display:flex;align-items:center;justify-content:center;
+  gap:14px;font-family:var(--mono);font-size:12px;letter-spacing:1px;font-weight:700;
+  padding:0 16px;white-space:nowrap;overflow:hidden;text-decoration:none;
+}
+.announce .tag{background:#000;color:#fff;border-radius:4px;padding:2px 8px;font-size:10px;letter-spacing:2px}
+.announce code{font-weight:700}
+.announce .go{text-decoration:underline;text-underline-offset:3px}
+.announce:hover .go{text-decoration:none}
+@media(max-width:720px){.announce .hide-m{display:none}.announce{font-size:11px;gap:10px}}
+
+/* ---------- nav ---------- */
+nav{
+  position:fixed;top:40px;left:0;right:0;z-index:100;
+  background:rgba(3,3,3,.78);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;height:68px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text)}
+.logo img{width:34px;height:34px}
+.logo span{font-weight:800;font-size:19px;letter-spacing:4px}
+.logo small{font-family:var(--mono);font-size:10px;color:var(--dim);border:1px solid var(--border-2);border-radius:4px;padding:2px 6px;letter-spacing:1px}
+.nav-links{display:flex;align-items:center;gap:34px;list-style:none}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;transition:color .2s}
+.nav-links a:hover{color:#fff}
+.btn{
+  display:inline-block;text-decoration:none;font-weight:600;font-size:14px;
+  padding:12px 26px;border-radius:8px;transition:all .25s;letter-spacing:.5px;cursor:pointer;
+}
+.btn-solid{background:#fff;color:#000;border:1px solid #fff}
+.btn-solid:hover{background:transparent;color:#fff;box-shadow:0 0 30px rgba(255,255,255,.18)}
+.btn-ghost{background:transparent;color:#fff;border:1px solid var(--border-2)}
+.btn-ghost:hover{border-color:#fff;box-shadow:0 0 24px rgba(255,255,255,.12)}
+.nav-cta{padding:9px 20px;font-size:13px}
+.burger{display:none;background:none;border:1px solid var(--border-2);border-radius:8px;color:#fff;width:42px;height:42px;font-size:18px;cursor:pointer}
+
+/* ---------- hero ---------- */
+header{position:relative;padding:230px 0 90px;z-index:1;overflow-x:clip}
+header::before{
+  content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);
+  width:900px;height:700px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.07) 0%,transparent 65%);
+  pointer-events:none;
+}
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:64px;align-items:center}
+.badge{
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:var(--mono);font-size:12px;color:var(--muted);
+  border:1px solid var(--border-2);border-radius:100px;padding:7px 16px;margin-bottom:30px;
+  letter-spacing:1px;
+}
+.badge .dot{width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 10px #fff;animation:pulse 2.2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+h1{
+  font-size:clamp(44px,6.4vw,84px);font-weight:900;line-height:1.02;
+  letter-spacing:-2px;margin-bottom:26px;
+}
+h1 .stroke{
+  color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.85);
+}
+.hero p.lead{font-size:18px;color:var(--muted);max-width:520px;margin-bottom:38px}
+.hero p.lead strong{color:#fff;font-weight:600}
+.hero-ctas{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:40px}
+.hero-meta{display:flex;gap:28px;font-family:var(--mono);font-size:12px;color:var(--dim);flex-wrap:wrap;letter-spacing:.5px}
+.hero-meta span b{color:var(--muted);font-weight:500}
+
+/* terminal */
+.term{
+  background:var(--bg-2);border:1px solid var(--border-2);border-radius:14px;
+  box-shadow:0 0 80px rgba(255,255,255,.06),0 30px 60px rgba(0,0,0,.6);
+  overflow:hidden;font-family:var(--mono);font-size:13.5px;
+}
+.term-bar{display:flex;align-items:center;gap:8px;padding:13px 18px;border-bottom:1px solid var(--border);background:var(--bg-3)}
+.term-bar i{width:11px;height:11px;border-radius:50%;background:#2e2e2e;display:block}
+.term-bar span{margin-left:auto;font-size:11px;color:var(--dim);letter-spacing:1px}
+.term-body{padding:22px;min-height:300px;line-height:1.75;white-space:pre-wrap;word-break:break-word}
+.cursor{display:inline-block;width:8px;height:17px;background:#fff;vertical-align:-3px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* syntax colors (monochrome scheme) */
+.tk-kw{color:#fff;font-weight:700}
+.tk-typ{color:#d9d9d9;font-style:italic}
+.tk-str{color:#a8a8a8}
+.tk-cmt{color:#525252;font-style:italic}
+.tk-num{color:#e8e8e8}
+.tk-op{color:#777}
+.tk-fn{color:#f0f0f0}
+
+/* ---------- marquee ---------- */
+.marquee{border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:18px 0;overflow:hidden;background:var(--bg-2);position:relative;z-index:1}
+.marquee-track{display:flex;gap:64px;width:max-content;animation:scroll 36s linear infinite}
+.marquee-track span{font-family:var(--mono);font-size:13px;color:var(--dim);letter-spacing:3px;text-transform:uppercase;white-space:nowrap}
+.marquee-track span::after{content:'//';margin-left:64px;color:#2c2c2c}
+@keyframes scroll{to{transform:translateX(-50%)}}
+
+/* ---------- token ---------- */
+.token-box{
+  display:grid;grid-template-columns:1fr auto;gap:40px;align-items:center;
+  border:1px solid var(--border-2);border-radius:20px;padding:46px 48px;
+  background:
+    radial-gradient(ellipse 50% 120% at 0% 50%,rgba(255,255,255,.06),transparent),
+    var(--bg-2);
+  position:relative;overflow:hidden;
+}
+.token-box::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);
+}
+.token-badge{
+  display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11.5px;
+  color:#000;background:#fff;border-radius:100px;padding:6px 14px;letter-spacing:2px;
+  font-weight:700;margin-bottom:18px;text-transform:uppercase;
+}
+.token-box h2{margin-bottom:10px}
+.token-box p{color:var(--muted);font-size:15.5px;max-width:560px}
+.token-ca{
+  font-family:var(--mono);font-size:13px;color:var(--muted);letter-spacing:1px;
+  border:1px dashed var(--border-2);border-radius:10px;padding:13px 18px;margin-top:22px;
+  display:inline-flex;align-items:center;gap:12px;background:var(--bg);
+}
+.token-ca b{color:#fff;font-weight:500;word-break:break-all}
+.token-ca{flex-wrap:wrap;max-width:100%}
+.token-ca .dot{width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 10px #fff;animation:pulse 2.2s infinite}
+.token-actions{display:flex;flex-direction:column;gap:14px;min-width:230px}
+.btn-x svg,.btn-pump svg{vertical-align:-3px;margin-right:9px}
+
+/* ---------- sections ---------- */
+section{padding:110px 0;position:relative;z-index:1}
+.sec-label{font-family:var(--mono);font-size:12px;letter-spacing:5px;color:var(--dim);text-transform:uppercase;margin-bottom:18px;display:flex;align-items:center;gap:14px}
+.sec-label::before{content:'';width:34px;height:1px;background:var(--border-2)}
+h2{font-size:clamp(32px,4.4vw,54px);font-weight:800;letter-spacing:-1.5px;line-height:1.1;margin-bottom:22px}
+.sec-intro{color:var(--muted);font-size:17px;max-width:680px}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:60px}
+.stat{background:var(--bg-2);padding:34px 28px;transition:background .3s}
+.stat:hover{background:var(--bg-3)}
+.stat b{display:block;font-size:38px;font-weight:800;letter-spacing:-1px;margin-bottom:6px}
+.stat span{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+
+/* manifesto */
+.manifesto{display:grid;grid-template-columns:1fr 1fr;gap:70px;margin-top:30px}
+.manifesto-quote{
+  font-size:clamp(22px,2.6vw,30px);font-weight:600;line-height:1.45;letter-spacing:-.5px;
+  border-left:2px solid #fff;padding-left:30px;
+}
+.manifesto-quote em{color:var(--muted);font-style:normal}
+.manifesto-quote footer{font-family:var(--mono);font-size:13px;color:var(--dim);margin-top:26px;font-weight:400;letter-spacing:1px}
+.manifesto-text p{color:var(--muted);margin-bottom:20px;font-size:16px}
+.manifesto-text p strong{color:#fff;font-weight:600}
+
+/* features */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:64px}
+.card{
+  background:var(--bg-2);border:1px solid var(--border);border-radius:14px;padding:34px 30px;
+  position:relative;transition:border-color .3s,transform .3s,box-shadow .3s;overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);
+  opacity:0;transition:opacity .3s;
+}
+.card:hover{border-color:var(--border-2);transform:translateY(-4px);box-shadow:0 20px 50px rgba(0,0,0,.5),0 0 40px rgba(255,255,255,.04)}
+.card:hover::before{opacity:1}
+.card .num{font-family:var(--mono);font-size:12px;color:var(--dim);letter-spacing:2px;display:block;margin-bottom:20px}
+.card h3{font-size:19px;font-weight:700;margin-bottom:12px;letter-spacing:-.3px}
+.card p{color:var(--muted);font-size:14.5px}
+.card code{font-family:var(--mono);font-size:12.5px;color:#e3e3e3;background:var(--bg-3);border:1px solid var(--border);border-radius:6px;padding:2px 7px}
+
+/* code showcase */
+.showcase{display:grid;grid-template-columns:280px 1fr;gap:30px;margin-top:60px;align-items:start}
+.tabs{display:flex;flex-direction:column;gap:8px;position:sticky;top:100px}
+.tab{
+  text-align:left;background:transparent;border:1px solid transparent;border-radius:10px;
+  padding:16px 18px;cursor:pointer;color:var(--muted);font-family:var(--sans);transition:all .25s;
+}
+.tab b{display:block;font-size:14.5px;font-weight:600;color:inherit;margin-bottom:3px}
+.tab span{font-family:var(--mono);font-size:11.5px;color:var(--dim);letter-spacing:.5px}
+.tab.active{background:var(--bg-2);border-color:var(--border-2);color:#fff}
+.tab:hover:not(.active){border-color:var(--border)}
+.code-panel{display:none}
+.code-panel.active{display:block;animation:fadeUp .4s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.code-panel .term-body{min-height:380px;font-size:13.5px}
+
+/* use cases */
+.domains{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:60px}
+.domain{background:var(--bg-2);padding:38px 36px;display:flex;gap:24px;transition:background .3s}
+.domain:hover{background:var(--bg-3)}
+.domain .idx{font-family:var(--mono);font-size:13px;color:var(--dim);padding-top:4px;letter-spacing:1px}
+.domain h3{font-size:18px;font-weight:700;margin-bottom:8px}
+.domain p{color:var(--muted);font-size:14.5px}
+
+/* docs */
+.docs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:60px}
+.docs-grid.social-grid{grid-template-columns:repeat(2,1fr)}
+a.doc-card{
+  text-decoration:none;color:var(--text);background:var(--bg-2);
+  border:1px solid var(--border);border-radius:14px;padding:30px 28px;
+  transition:all .3s;display:block;position:relative;
+}
+a.doc-card:hover{border-color:#fff;transform:translateY(-4px);box-shadow:0 0 40px rgba(255,255,255,.07)}
+a.doc-card .arrow{position:absolute;top:26px;right:26px;color:var(--dim);font-family:var(--mono);transition:all .3s}
+a.doc-card:hover .arrow{color:#fff;transform:translate(3px,-3px)}
+a.doc-card h3{font-size:17px;font-weight:700;margin-bottom:10px}
+a.doc-card p{color:var(--muted);font-size:14px}
+a.doc-card .tag{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:16px}
+.quickstart{margin-top:60px;display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:stretch}
+.quickstart .term{height:100%}
+
+/* roadmap */
+.phase-label{display:flex;align-items:center;gap:16px;margin:64px 0 8px}
+.phase-label:first-of-type{margin-top:56px}
+.phase-label b{font-family:var(--mono);font-size:12px;letter-spacing:3px;text-transform:uppercase;color:#fff;white-space:nowrap}
+.phase-label span{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--dim);white-space:nowrap}
+.phase-label .ln{flex:1;height:1px;background:var(--border-2)}
+.timeline{margin-top:30px;position:relative;padding-left:36px}
+.timeline::before{content:'';position:absolute;left:7px;top:6px;bottom:6px;width:1px;background:var(--border-2)}
+.milestone{position:relative;padding-bottom:42px}
+.milestone:last-child{padding-bottom:0}
+.milestone::before{
+  content:'';position:absolute;left:-36px;top:7px;width:15px;height:15px;border-radius:50%;
+  background:var(--bg);border:2px solid var(--border-2);
+}
+.milestone.done::before{background:var(--dim);border-color:var(--dim)}
+.milestone.now::before{background:#fff;border-color:#fff;box-shadow:0 0 18px rgba(255,255,255,.7)}
+.milestone .ver{font-family:var(--mono);font-size:12px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.milestone.now .ver,.milestone.done .ver{color:#fff}
+.mstat{font-family:var(--mono);font-size:10px;letter-spacing:2px;border-radius:4px;padding:2px 8px;font-weight:700}
+.mstat.s-done{background:var(--dim);color:#000}
+.mstat.s-now{background:#fff;color:#000}
+.mstat.s-next{background:transparent;color:var(--muted);border:1px solid var(--border-2)}
+.milestone h3{font-size:21px;font-weight:700;margin:8px 0 8px;letter-spacing:-.3px}
+.milestone p{color:var(--muted);font-size:15px;max-width:660px}
+.milestone ul{list-style:none;margin:14px 0 0;max-width:660px;display:flex;flex-wrap:wrap;gap:8px}
+.milestone ul li{font-family:var(--mono);font-size:11.5px;color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:5px 11px;background:var(--bg-2)}
+.milestone.done ul li{color:var(--dim)}
+.milestone.done ul li::before{content:'✓ ';color:#fff}
+
+/* cta + footer */
+.cta-box{
+  border:1px solid var(--border-2);border-radius:20px;padding:90px 40px;text-align:center;
+  background:radial-gradient(ellipse 60% 100% at 50% 0%,rgba(255,255,255,.06),transparent);
+  position:relative;overflow:hidden;
+}
+.cta-box h2{margin-bottom:16px}
+.cta-box p{color:var(--muted);max-width:540px;margin:0 auto 38px}
+footer.site{border-top:1px solid var(--border);padding:60px 0 40px;position:relative;z-index:1}
+.foot{display:flex;justify-content:space-between;gap:40px;flex-wrap:wrap}
+.foot-brand p{color:var(--dim);font-size:13px;margin-top:14px;max-width:300px}
+.foot-cols{display:flex;gap:70px;flex-wrap:wrap}
+.foot-col b{display:block;font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-bottom:18px;font-weight:600}
+.foot-col a{display:block;color:var(--dim);text-decoration:none;font-size:14px;margin-bottom:10px;transition:color .2s}
+.foot-col a:hover{color:#fff}
+.foot-bottom{margin-top:54px;padding-top:26px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;color:var(--dim);letter-spacing:1px}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in{opacity:1;transform:none}
+
+/* ---------- responsive ---------- */
+@media(max-width:1024px){
+  .hero{grid-template-columns:1fr;gap:50px}
+  .token-box{grid-template-columns:1fr;gap:30px;padding:38px 30px}
+  .token-actions{flex-direction:row;flex-wrap:wrap}
+  .cards{grid-template-columns:repeat(2,1fr)}
+  .docs-grid{grid-template-columns:repeat(2,1fr)}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .showcase{grid-template-columns:1fr}
+  .tabs{position:static;flex-direction:row;overflow-x:auto;padding-bottom:6px}
+  .tab{min-width:190px}
+  .manifesto{grid-template-columns:1fr;gap:44px}
+  .quickstart{grid-template-columns:1fr}
+}
+@media(max-width:720px){
+  .nav-links{
+    display:none;position:absolute;top:68px;left:0;right:0;flex-direction:column;gap:0;
+    background:rgba(3,3,3,.97);border-bottom:1px solid var(--border);padding:10px 0;
+  }
+  .nav-links.open{display:flex}
+  .nav-links li{width:100%}
+  .nav-links a{display:block;padding:15px 24px}
+  .nav-cta{display:none}
+  .burger{display:block}
+  header{padding:180px 0 70px}
+  section{padding:80px 0}
+  .cards,.docs-grid,.domains,.docs-grid.social-grid{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr 1fr}
+  .stat b{font-size:30px}
+  .domain{padding:30px 24px}
+  .cta-box{padding:64px 24px}
+}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<!-- ============ ANNOUNCEMENT ============ -->
+<a class="announce" href="/cli">
+  <span class="tag">NEW</span>
+  <span>Faby ships as a standalone binary — no Node<span class="hide-m"> — <code>curl -fsSL faby.codes/install.sh | sh</code></span></span>
+  <span class="go">Install →</span>
+</a>
+
+<!-- ============ NAV ============ -->
+<nav>
+  <div class="nav-inner">
+    <a class="logo" href="#"><img src="assets/icon.svg" alt="Faby logo"><span>FABY</span><small>v0.1</small></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="/playground">Playground</a></li>
+      <li><a href="/guestbook">Live Demo</a></li>
+      <li><a href="/benchmark">Benchmark</a></li>
+      <li><a href="#token">$FABY</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#code">Code</a></li>
+      <li><a href="#docs">Docs</a></li>
+      <li><a href="/cli">CLI</a></li>
+      <li><a href="#roadmap">Roadmap</a></li>
+    </ul>
+    <div style="display:flex;gap:12px;align-items:center">
+      <a href="/docs" class="btn btn-solid nav-cta">Read the Docs</a>
+      <button class="burger" id="burger" aria-label="Menu">≡</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header>
+  <div class="wrap hero">
+    <div>
+      <div class="badge"><span class="dot"></span>DESIGNED BY CLAUDE FABLE-5 · v0.1 “GENESIS”</div>
+      <h1>The language<br>written <span class="stroke">by AI,</span><br>for AI.</h1>
+      <p class="lead">
+        <strong>Faby</strong> is the first programming language conceived end-to-end by an AI model.
+        Token-minimal. Deterministic. Parallel by default. Built so that machines write it flawlessly —
+        and humans read it effortlessly.
+      </p>
+      <div class="hero-ctas">
+        <a href="/playground" class="btn btn-solid">▶ Run Faby in your Browser</a>
+        <a href="#docs" class="btn btn-ghost">Get Started</a>
+      </div>
+      <div class="hero-meta">
+        <span><b>EXT</b> .fy</span>
+        <span><b>LICENSE</b> MIT</span>
+        <span><b>PARADIGM</b> FLOW-ORIENTED</span>
+        <span><b>RUNTIME</b> INTERPRETER (v0.1)</span>
+      </div>
+    </div>
+    <div class="term">
+      <div class="term-bar"><i></i><i></i><i></i><span>hello.fy — faby v0.1</span></div>
+      <div class="term-body" id="heroCode"></div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ MARQUEE ============ -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track" id="marquee">
+    <span>Token-minimal grammar</span><span>One canonical form</span><span>Parallel by default</span>
+    <span>Contracts as code</span><span>Intent-preserving</span><span>Semantic types</span>
+    <span>Zero-config toolchain</span><span>Deterministic builds</span>
+  </div>
+</div>
+
+<!-- ============ TOKEN ============ -->
+<section id="token" style="padding-top:90px;padding-bottom:0">
+  <div class="wrap">
+    <div class="token-box reveal">
+      <div>
+        <span class="token-badge"><span style="width:7px;height:7px;border-radius:50%;background:#000"></span>OFFICIAL TOKEN</span>
+        <h2 style="font-size:clamp(28px,3.6vw,44px)">$FABY — launching on pump.fun</h2>
+        <p>The community token of the Faby project. One token, one language, one mission: fund the first AI-native toolchain — built in public, owned by the community.</p>
+        <div class="token-ca" id="tokenCABox" title="Click to copy" style="cursor:pointer"><span class="dot"></span><span>CA:</span><b id="tokenCA">52KiTkmHePbPjNQ74SwcUwBnVaCDbCZZd8XYoFjYpump</b><span id="copyHint" style="color:var(--dim)">⧉</span></div>
+      </div>
+      <div class="token-actions">
+        <a href="https://pump.fun/coin/52KiTkmHePbPjNQ74SwcUwBnVaCDbCZZd8XYoFjYpump" target="_blank" rel="noopener" class="btn btn-solid btn-pump">Buy on pump.fun ↗</a>
+        <a href="https://x.com/fabylanguage" target="_blank" rel="noopener" class="btn btn-ghost btn-x"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Follow @fabylanguage</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STATS ============ -->
+<section style="padding-top:90px;padding-bottom:0">
+  <div class="wrap">
+    <div class="stats reveal">
+      <a class="stat" href="/benchmark" style="text-decoration:none;color:inherit;display:block"><b>−20%</b><span>fewer tokens on average — measured &amp; reproducible →</span></a>
+      <div class="stat"><b>1</b><span>canonical formatting — zero style debates</span></div>
+      <div class="stat"><b>0</b><span>undefined behaviors in the spec</span></div>
+      <div class="stat"><b>∞</b><span>domains — one language for everything</span></div>
+    </div>
+    <p style="font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:14px;letter-spacing:.5px">Up to −33% on data-transformation code; ~−20% averaged across 5 tasks vs Python, TypeScript &amp; Rust. <a href="/benchmark" style="color:var(--muted)">See the full benchmark &amp; method →</a></p>
+  </div>
+</section>
+
+<!-- ============ PHILOSOPHY ============ -->
+<section id="philosophy">
+  <div class="wrap">
+    <div class="sec-label">01 / Philosophy</div>
+    <h2 class="reveal">Every language was designed<br>for humans. Until now.</h2>
+    <div class="manifesto reveal">
+      <blockquote class="manifesto-quote">
+        “Code is no longer written only by people. It is generated, reviewed, refactored and verified by machines.
+        <em>So why does every language still optimize for typing speed on a 1970s keyboard?</em>”
+        <footer>— FABY DESIGN MANIFESTO, PRINCIPLE 0</footer>
+      </blockquote>
+      <div class="manifesto-text">
+        <p><strong>Tokens are the new keystrokes.</strong> Faby's grammar is engineered so that every construct costs the fewest possible tokens for a language model to generate — without sacrificing human readability. Less ceremony, more meaning.</p>
+        <p><strong>Ambiguity is a bug.</strong> Faby has exactly one way to express each construct and one canonical formatting. <code style="font-family:var(--mono);font-size:13px">faby fmt</code> is the identity function on valid code. Diffs become purely semantic; merge conflicts over style cease to exist.</p>
+        <p><strong>Intent lives inside the program.</strong> Natural-language <em>intent blocks</em> are first-class syntax, permanently attached to the code they describe — so an AI can verify that what the code <em>does</em> still matches what it was <em>meant</em> to do.</p>
+        <p><strong>Correctness is checkable.</strong> Contracts (<code style="font-family:var(--mono);font-size:13px">ensure</code>/<code style="font-family:var(--mono);font-size:13px">expect</code>) compile to static proofs where possible and runtime guards otherwise. Generated code arrives with its own evidence.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURES ============ -->
+<section id="features" style="border-top:1px solid var(--border)">
+  <div class="wrap">
+    <div class="sec-label">02 / Core Design</div>
+    <h2 class="reveal">Eight decisions that<br>define Faby.</h2>
+    <p class="sec-intro reveal">Each one exists for a reason an AI cares about — and each one makes the language better for humans too.</p>
+    <div class="cards">
+      <div class="card reveal"><span class="num">F-01</span><h3>Flows, not functions</h3><p>The unit of computation is the <code>flow</code> — a pure-by-default transformation with explicit effects. The last expression is the return value. No boilerplate, no ceremony.</p></div>
+      <div class="card reveal"><span class="num">F-02</span><h3>Intent blocks</h3><p><code>intent "…"</code> attaches the natural-language purpose to code as checkable syntax. Tooling flags drift between what code says and what it was meant to do.</p></div>
+      <div class="card reveal"><span class="num">F-03</span><h3>Contracts as code</h3><p><code>ensure</code> and <code>expect</code> clauses declare what must hold. The compiler proves what it can statically and guards the rest at runtime.</p></div>
+      <div class="card reveal"><span class="num">F-04</span><h3>Pipeline-first</h3><p>The <code>|&gt;</code> operator makes data flow read left-to-right, top-to-bottom — the way both models and humans actually reason about transformations.</p></div>
+      <div class="card reveal"><span class="num">F-05</span><h3>Recovery operators</h3><p>Errors are values handled inline: <code>? retry(3)</code>, <code>? skip</code>, <code>? default(x)</code>, <code>? fail</code>. Failure policy is visible at the exact call site.</p></div>
+      <div class="card reveal"><span class="num">F-06</span><h3>Parallel by default</h3><p><code>spawn</code> gives structured concurrency with ownership-based data-race freedom. If it compiles, it doesn't race.</p></div>
+      <div class="card reveal"><span class="num">F-07</span><h3>Semantic types</h3><p>Types carry meaning, not just shape: <code>Email</code>, <code>Url</code>, refinements like <code>Int where self &gt; 0</code>. The type system encodes the domain.</p></div>
+      <div class="card reveal"><span class="num">F-08</span><h3>One binary, zero config</h3><p>The <code>faby</code> CLI is compiler, runtime, formatter, package manager, REPL and AI assistant in a single static binary.</p></div>
+      <div class="card reveal"><span class="num">F-09</span><h3>AI in the stdlib</h3><p>Model calls are a standard-library primitive — typed, cached, testable. <code>use ai</code> and inference becomes just another flow.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CODE ============ -->
+<section id="code" style="border-top:1px solid var(--border)">
+  <div class="wrap">
+    <div class="sec-label">03 / The Language</div>
+    <h2 class="reveal">Read it once.<br>You already know it.</h2>
+    <p class="sec-intro reveal">Faby is designed to be obvious. Significant newlines, no semicolons, no parentheses noise — every character earns its place.</p>
+
+    <div class="showcase reveal">
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-panel="p1"><b>Hello, Faby</b><span>basics · flows · strings</span></button>
+        <button class="tab" data-panel="p2"><b>Web Service</b><span>http · routing · contracts</span></button>
+        <button class="tab" data-panel="p3"><b>AI Agent</b><span>stdlib ai · intent · recovery</span></button>
+        <button class="tab" data-panel="p4"><b>Data Pipeline</b><span>spawn · pipes · match</span></button>
+      </div>
+      <div>
+        <div class="code-panel active" id="p1">
+          <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>hello.fy</span></div>
+<pre class="term-body" data-faby>-- Faby: significant newlines, no semicolons, last expression returns.
+
+flow greet(name: Text) -> Text
+  "Hello, {name} — welcome to Faby."
+
+flow main
+  let names = ["World", "Fable-5", "Future"]
+  for name in names
+    print(greet(name))
+
+-- Pattern matching is exhaustive by design:
+flow describe(n: Int) -> Text
+  match n
+    0      -> "zero"
+    1 | 2  -> "small"
+    _ if n < 0 -> "negative"
+    _      -> "large"</pre></div>
+        </div>
+        <div class="code-panel" id="p2">
+          <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>server.fy</span></div>
+<pre class="term-body" data-faby>-- a REAL web server — runs today: faby run server.fy
+use http
+
+flow health(req)
+  {status: "ok", lang: "faby"}
+
+flow greet(req) -> Text
+  "&lt;h1&gt;Hi, {req.params.name}!&lt;/h1&gt;"
+
+flow add(req)
+  {sum: req.body.a + req.body.b}
+
+intent "serve a tiny JSON + HTML API"
+flow main
+  http.get("/health", health)
+  http.get("/hi/:name", greet)
+  http.post("/add", add)
+  http.serve(8080)</pre></div>
+          <p style="text-align:center;margin-top:14px;font-size:14px"><a href="/guestbook" style="color:#fff;text-decoration:none;border-bottom:1px solid var(--border-2)">▶ See a real Faby web app running live → /guestbook</a></p>
+        </div>
+        <div class="code-panel" id="p3">
+          <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>agent.fy</span></div>
+<pre class="term-body" data-faby>use ai
+use web
+
+intent "summarize any webpage into three sharp bullet points"
+flow summarize(page: Url) -> [Text]
+  ensure result.len == 3
+  let doc = web.fetch(page) ? retry(3) ? fail
+  ai.complete(
+    model:  "claude-fable-5",
+    prompt: "Summarize in exactly 3 bullets:\n{doc.text}",
+  ) |> lines |> take(3)
+
+flow main
+  let pages = args() |> map(Url.parse) ? skip
+  spawn for page in pages          -- all pages, concurrently
+    summarize(page) |> each(print)</pre></div>
+        </div>
+        <div class="code-panel" id="p4">
+          <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>pipeline.fy</span></div>
+<pre class="term-body" data-faby>use csv
+use stats
+
+type Reading
+  sensor: Text
+  value:  Float where self >= 0.0   -- refinement type
+  at:     Time
+
+intent "clean sensor data and report anomalies per sensor"
+flow main
+  let readings =
+    csv.load<Reading>("sensors.csv") ? skip   -- bad rows just drop out
+
+  let report = spawn readings
+    |> group_by(.sensor)
+    |> map_values(detect_anomalies)
+
+  for (sensor, anomalies) in report
+    print("{sensor}: {anomalies.len} anomalies")
+
+flow detect_anomalies(xs: [Reading]) -> [Reading]
+  let mean = xs |> map(.value) |> stats.mean
+  let dev  = xs |> map(.value) |> stats.stddev
+  xs |> filter(abs(.value - mean) > 3.0 * dev)</pre></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DOMAINS ============ -->
+<section id="domains" style="border-top:1px solid var(--border)">
+  <div class="wrap">
+    <div class="sec-label">04 / Built for Everything</div>
+    <h2 class="reveal">One language.<br>Every layer of the stack.</h2>
+    <p class="sec-intro reveal">Faby compiles to native code through its own IR, runs interpreted for instant iteration, and targets WASM for the browser and the edge. The same flow runs everywhere.</p>
+    <div class="domains reveal">
+      <div class="domain"><span class="idx">/01</span><div><h3>Autonomous Agents</h3><p>Typed model calls, intent verification and recovery operators make Faby the natural substrate for AI agents that must not silently fail.</p></div></div>
+      <div class="domain"><span class="idx">/02</span><div><h3>Web Services &amp; APIs</h3><p>Declarative routing, contract-checked handlers and structured concurrency — a production backend in a screenful of code.</p></div></div>
+      <div class="domain"><span class="idx">/03</span><div><h3>Data &amp; Scientific Computing</h3><p>Pipelines, refinement types and parallel-by-default collections turn messy data work into verifiable transformations.</p></div></div>
+      <div class="domain"><span class="idx">/04</span><div><h3>Systems &amp; CLI Tooling</h3><p>Single static binaries, deterministic builds, no runtime dependency. Ship a tool, not a dependency tree.</p></div></div>
+      <div class="domain"><span class="idx">/05</span><div><h3>Edge &amp; WASM</h3><p>A compact WASM target brings contracts and semantic types to browsers, workers and embedded runtimes.</p></div></div>
+      <div class="domain"><span class="idx">/06</span><div><h3>Generated Codebases</h3><p>Canonical form plus intent blocks means AI-maintained repositories stay reviewable by humans — forever.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DOCS ============ -->
+<section id="docs" style="border-top:1px solid var(--border)">
+  <div class="wrap">
+    <div class="sec-label">05 / Documentation</div>
+    <h2 class="reveal">The Faby Docs.</h2>
+    <p class="sec-intro reveal">Everything specified so far in the Genesis release — from your first flow to the concurrency model. The spec is young, precise, and growing.</p>
+    <div class="docs-grid">
+      <a class="doc-card reveal" href="/docs#introduction"><span class="arrow">↗</span><span class="tag">Start Here</span><h3>Introduction</h3><p>What Faby is, why it exists, and how an AI designs a language differently.</p></a>
+      <a class="doc-card reveal" href="/docs#installation"><span class="arrow">↗</span><span class="tag">Setup</span><h3>Installation</h3><p>One command, one binary. The faby CLI on macOS, Linux and Windows.</p></a>
+      <a class="doc-card reveal" href="/docs#basics"><span class="arrow">↗</span><span class="tag">Language Tour</span><h3>Flows &amp; Values</h3><p>Bindings, flows, string interpolation, and the one-canonical-form rule.</p></a>
+      <a class="doc-card reveal" href="/docs#types"><span class="arrow">↗</span><span class="tag">Language Tour</span><h3>Semantic Types</h3><p>Records, refinement types, and types that carry domain meaning.</p></a>
+      <a class="doc-card reveal" href="/docs#pipelines"><span class="arrow">↗</span><span class="tag">Language Tour</span><h3>Pipelines &amp; Errors</h3><p>The |&gt; operator and inline recovery: retry, skip, default, fail.</p></a>
+      <a class="doc-card reveal" href="/docs#concurrency"><span class="arrow">↗</span><span class="tag">Advanced</span><h3>Concurrency &amp; Contracts</h3><p>spawn, structured parallelism, and ensure/expect verification.</p></a>
+    </div>
+    <a class="doc-card reveal" href="/cli" style="margin-top:22px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;border-color:var(--border-2)">
+      <span class="tag" style="margin:0;background:#fff;color:#000;border-radius:4px;padding:3px 10px;font-weight:700">LIVE ON NPM</span>
+      <h3 style="margin:0">The Complete CLI Reference</h3>
+      <p style="margin:0;flex:1;min-width:200px">Every command, flag, exit code and CI recipe. Install it now: <code style="font-family:var(--mono);font-size:12.5px">npm i -g @fabycode/cli</code></p>
+      <span class="arrow" style="position:static">↗</span>
+    </a>
+
+    <div class="quickstart reveal">
+      <div>
+        <h3 style="font-size:24px;font-weight:800;letter-spacing:-.5px;margin-bottom:14px">60-second quickstart</h3>
+        <p style="color:var(--muted);font-size:15px;margin-bottom:24px">The entire toolchain is one static binary. Install it, write a flow, run it. No package manager, no config files, no build scripts.</p>
+        <a href="/docs" class="btn btn-ghost">Open Full Documentation →</a>
+      </div>
+      <div class="term">
+        <div class="term-bar"><i></i><i></i><i></i><span>terminal</span></div>
+<pre class="term-body" style="min-height:auto"><span class="tk-cmt"># install — live on NPM now</span>
+<span class="tk-op">$</span> npm i -g @fabycode/cli
+
+<span class="tk-cmt"># create your first flow</span>
+<span class="tk-op">$</span> echo 'flow main\n  print("Hello, Faby.")' > hello.fy
+
+<span class="tk-cmt"># run it</span>
+<span class="tk-op">$</span> faby run hello.fy
+Hello, Faby.
+
+<span class="tk-cmt"># let the compiler explain any code to you</span>
+<span class="tk-op">$</span> faby explain hello.fy<span class="cursor"></span></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ROADMAP ============ -->
+<section id="roadmap" style="border-top:1px solid var(--border)">
+  <div class="wrap">
+    <div class="sec-label">06 / Roadmap</div>
+    <h2 class="reveal">From Genesis<br>to the standard.</h2>
+    <p class="sec-intro reveal">A language, a toolchain, a runtime economy and an ecosystem — built in public and shipped as fast as we can build it. No quarter-by-quarter roadmap theatre: things land when they land, and everything marked <b style="color:#fff">shipped</b> already runs today. The rest is honest work-in-progress.</p>
+
+    <!-- PHASE I -->
+    <div class="phase-label reveal"><b>Phase I — Foundation</b><span>the language exists</span><span class="ln"></span></div>
+    <div class="timeline reveal">
+      <div class="milestone done">
+        <span class="ver">v0.1 · Genesis <span class="mstat s-done">Shipped</span></span>
+        <h3>Language design &amp; specification</h3>
+        <p>The complete language design: flow model, semantic types, contracts, recovery operators, the concurrency story — specified, documented and public.</p>
+        <ul><li>Full spec &amp; docs</li><li>Brand &amp; site</li><li>$FABY token live</li></ul>
+      </div>
+      <div class="milestone done">
+        <span class="ver">v0.1.1 · Spark <span class="mstat s-done">Shipped</span></span>
+        <h3>Playground, NPM &amp; standalone binary</h3>
+        <p>A working interpreter — in your browser, your terminal, and as a single executable. <code style="font-family:var(--mono);font-size:13px">curl faby.codes/install.sh | sh</code> or <code style="font-family:var(--mono);font-size:13px">npm i -g @fabycode/cli</code> runs flows, pipelines, matching, contracts and recovery, today.</p>
+        <ul><li>In-browser playground</li><li>@fabycode/cli</li><li>standalone binary (macOS · Linux)</li><li>faby run · repl · init</li><li>reproducible benchmark</li></ul>
+      </div>
+    </div>
+
+    <!-- PHASE II -->
+    <div class="phase-label reveal"><b>Phase II — The Toolchain</b><span>the language gets fast &amp; safe</span><span class="ln"></span></div>
+    <div class="timeline reveal">
+      <div class="milestone now">
+        <span class="ver">v0.2 · Pulse <span class="mstat s-now">In progress</span></span>
+        <h3>Static checker &amp; canonical formatter</h3>
+        <p>A real front-end. <code style="font-family:var(--mono);font-size:13px">faby check</code> (unknown names, arity, exhaustiveness) and <code style="font-family:var(--mono);font-size:13px">faby fmt</code> (idempotent canonical form) <strong>shipped in v0.2.0</strong>. Full semantic-type inference, refinement checking and the editor LSP are next.</p>
+        <ul><li>faby check ✓</li><li>faby fmt ✓</li><li>Type inference</li><li>Refinement types</li><li>Editor LSP (preview)</li></ul>
+      </div>
+      <div class="milestone now">
+        <span class="ver">v0.3 · Lattice <span class="mstat s-now">In progress</span></span>
+        <h3>Test runner &amp; property fuzzing</h3>
+        <p>Contracts that <strong>auto-generate property-based tests</strong>: <code style="font-family:var(--mono);font-size:13px">faby test</code> fuzzes typed inputs and hunts for counterexamples. Static <em>proving</em> of contracts at compile time is the remaining piece.</p>
+        <ul><li>faby test ✓</li><li>Property fuzzing ✓</li><li>VS Code extension ✓</li><li>Static proving</li></ul>
+      </div>
+      <div class="milestone now">
+        <span class="ver">v0.4 · Current <span class="mstat s-now">In progress</span></span>
+        <h3>Structured concurrency</h3>
+        <p><code style="font-family:var(--mono);font-size:13px">spawn</code>, <code style="font-family:var(--mono);font-size:13px">await</code> and parallel-by-default pipelines <strong>run today</strong> — data-race-free by construction. Channels and true multi-core execution (with native compile) are next.</p>
+        <ul><li>spawn / await ✓</li><li>Parallel pipelines ✓</li><li>Race-free by construction ✓</li><li>Channels</li><li>True multi-core</li></ul>
+      </div>
+    </div>
+
+    <!-- PHASE III -->
+    <div class="phase-label reveal"><b>Phase III — Compile &amp; Run Anywhere</b><span>the language goes native</span><span class="ln"></span></div>
+    <div class="timeline reveal">
+      <div class="milestone">
+        <span class="ver">v0.5 · Horizon <span class="mstat s-next">Planned</span></span>
+        <h3>Native &amp; WASM compilation</h3>
+        <p>Ahead-of-time compilation through the Faby IR to a single static native binary and to WASM for browser, edge and embedded targets. Deterministic, reproducible builds.</p>
+        <ul><li>faby build --native</li><li>faby build --wasm</li><li>Cross-compilation</li><li>Reproducible builds</li></ul>
+      </div>
+      <div class="milestone">
+        <span class="ver">v0.6 · Atlas <span class="mstat s-next">Planned</span></span>
+        <h3>Standard library &amp; package index</h3>
+        <p>The batteries: <code style="font-family:var(--mono);font-size:13px">http</code>, <code style="font-family:var(--mono);font-size:13px">db</code>, <code style="font-family:var(--mono);font-size:13px">web</code>, <code style="font-family:var(--mono);font-size:13px">csv/json</code>, <code style="font-family:var(--mono);font-size:13px">stats</code> — plus a content-addressed package registry with capability auditing.</p>
+        <ul><li>Stdlib v1</li><li>faby add / publish</li><li>Capability audit</li><li>Lockfiles</li></ul>
+      </div>
+    </div>
+
+    <!-- PHASE IV -->
+    <div class="phase-label reveal"><b>Phase IV — The AI-Native Economy</b><span>the language thinks &amp; pays for itself</span><span class="ln"></span></div>
+    <div class="timeline reveal">
+      <div class="milestone">
+        <span class="ver">v0.7 · Oracle <span class="mstat s-next">Planned</span></span>
+        <h3>AI in the standard library &amp; $FABY runtime</h3>
+        <p>The <code style="font-family:var(--mono);font-size:13px">ai</code> module — typed, cached, testable model calls — and the metered runtime: the CLI spends <b style="color:#fff">$FABY</b> for compute, with in-CLI balance and auto top-up (fiat auto-converted to on-chain $FABY).</p>
+        <ul><li>use ai</li><li>faby gen · explain · review</li><li>faby balance / topup</li><li>$FABY metering</li></ul>
+      </div>
+      <div class="milestone">
+        <span class="ver">v0.8 · Forge <span class="mstat s-next">Planned</span></span>
+        <h3>Agent runtime &amp; intent verification</h3>
+        <p>First-class autonomous-agent primitives, plus <code style="font-family:var(--mono);font-size:13px">faby check --intent</code>: a model verifies that each intent block still matches what its code actually does, gating AI-generated changes.</p>
+        <ul><li>Agent runtime</li><li>Intent drift detection</li><li>AI PR gating</li><li>Self-healing flows</li></ul>
+      </div>
+      <div class="milestone">
+        <span class="ver">v0.9 · Nexus <span class="mstat s-next">Planned</span></span>
+        <h3>Ecosystem &amp; integrations</h3>
+        <p>Open-source repo, full editor support across VS Code &amp; JetBrains, CI actions, framework partners, and the public Genesis Log documenting every design decision.</p>
+        <ul><li>Open source</li><li>JetBrains plugin</li><li>CI integrations</li><li>Partner program</li></ul>
+      </div>
+      <div class="milestone">
+        <span class="ver">v1.0 · Singularity <span class="mstat s-next">The goal</span></span>
+        <h3>The stability promise</h3>
+        <p>A frozen core spec, a stable standard library, a thriving package index — and a compatibility guarantee that both humans and models can build on for the next decade.</p>
+        <ul><li>Frozen spec</li><li>Stable stdlib</li><li>Compatibility guarantee</li><li>The AI-native standard</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SOCIAL ============ -->
+<section id="social" style="border-top:1px solid var(--border)">
+  <div class="wrap">
+    <div class="sec-label">07 / Community</div>
+    <h2 class="reveal">Follow the build.</h2>
+    <p class="sec-intro reveal">Faby is built in public. Design decisions, toolchain progress and the $FABY token — everything drops here first.</p>
+    <div class="docs-grid social-grid">
+      <a class="doc-card reveal" href="https://x.com/fabylanguage" target="_blank" rel="noopener">
+        <span class="arrow">↗</span><span class="tag">X / Twitter</span>
+        <h3><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-2px;margin-right:9px"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>@fabylanguage</h3>
+        <p>Language updates, spec drops, roadmap milestones and the official $FABY announcements.</p>
+      </a>
+      <a class="doc-card reveal" href="https://pump.fun/coin/52KiTkmHePbPjNQ74SwcUwBnVaCDbCZZd8XYoFjYpump" target="_blank" rel="noopener">
+        <span class="arrow">↗</span><span class="tag">pump.fun</span>
+        <h3>$FABY Token — LIVE</h3>
+        <p>The community token is live on pump.fun. Only trust the contract address published on this site and @fabylanguage.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section style="border-top:1px solid var(--border)">
+  <div class="wrap">
+    <div class="cta-box reveal">
+      <div class="sec-label" style="justify-content:center">The Future is Generated</div>
+      <h2>Write tomorrow,<br>today.</h2>
+      <p>Faby v0.1 “Genesis” is an open design. Read the spec, challenge the decisions, and help shape the first language of the AI era.</p>
+      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+        <a href="/docs" class="btn btn-solid">Read the Docs →</a>
+        <a href="#code" class="btn btn-ghost">Back to the Code</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="site">
+  <div class="wrap">
+    <div class="foot">
+      <div class="foot-brand">
+        <a class="logo" href="#"><img src="assets/icon.svg" alt="Faby logo"><span>FABY</span></a>
+        <p>The AI-native programming language. Designed by Claude Fable-5. Optimized for AI. Built for everything.</p>
+      </div>
+      <div class="foot-cols">
+        <div class="foot-col"><b>Language</b><a href="/playground">Playground</a><a href="/guestbook">Live App Demo</a><a href="/benchmark">Benchmark</a><a href="#philosophy">Philosophy</a><a href="#roadmap">Roadmap</a></div>
+        <div class="foot-col"><b>Documentation</b><a href="/docs#introduction">Introduction</a><a href="/docs#installation">Installation</a><a href="/docs#basics">Language Tour</a><a href="/cli">CLI Reference</a><a href="https://www.npmjs.com/package/@fabycode/cli" target="_blank" rel="noopener">@fabycode/cli on NPM</a></div>
+        <div class="foot-col"><b>Project</b><a href="#">GitHub</a><a href="#">Specification</a><a href="#">Brand Assets</a><a href="#token">$FABY Token</a></div>
+        <div class="foot-col"><b>Social</b><a href="https://x.com/fabylanguage" target="_blank" rel="noopener">X / @fabylanguage</a><a href="https://pump.fun/coin/52KiTkmHePbPjNQ74SwcUwBnVaCDbCZZd8XYoFjYpump" target="_blank" rel="noopener">pump.fun</a></div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 THE FABY PROJECT · MIT LICENSE</span>
+      <span>DESIGNED BY CLAUDE FABLE-5 · V0.1 GENESIS</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ---------- Faby syntax highlighter (monochrome) ---------- */
+function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function highlightFaby(src){
+  const re=/(--[^\n]*)|("(?:[^"\\]|\\.)*")|\b(flow|let|mut|type|match|if|else|for|in|spawn|await|intent|ensure|expect|use|pub|route|where|retry|skip|fail|default|GET|POST|PUT|DELETE)\b|\b([A-Z][A-Za-z0-9_]*)\b|\b(\d+(?:\.\d+)?)\b|(\|>|->|\?(?=\s))/g;
+  let out='',last=0,m;
+  while((m=re.exec(src))){
+    out+=escapeHtml(src.slice(last,m.index));
+    const t=m[0];
+    if(m[1])out+='<span class="tk-cmt">'+escapeHtml(t)+'</span>';
+    else if(m[2])out+='<span class="tk-str">'+escapeHtml(t)+'</span>';
+    else if(m[3])out+='<span class="tk-kw">'+escapeHtml(t)+'</span>';
+    else if(m[4])out+='<span class="tk-typ">'+escapeHtml(t)+'</span>';
+    else if(m[5])out+='<span class="tk-num">'+escapeHtml(t)+'</span>';
+    else out+='<span class="tk-op">'+escapeHtml(t)+'</span>';
+    last=m.index+t.length;
+  }
+  return out+escapeHtml(src.slice(last));
+}
+document.querySelectorAll('[data-faby]').forEach(el=>{
+  el.innerHTML=highlightFaby(el.textContent.replace(/^\n/,''));
+});
+
+/* ---------- hero typing animation ---------- */
+const heroSrc=`-- your first flow, written by a model, readable by anyone
+
+intent "greet the future"
+flow main
+  let who = ai.name() ? default("World")
+  print("Hello, {who}.")
+  print("This is Faby. Code at the speed of thought.")
+
+$ faby run hello.fy
+Hello, Claude Fable-5.
+This is Faby. Code at the speed of thought.`;
+const heroEl=document.getElementById('heroCode');
+let i=0;
+function typeHero(){
+  if(i<=heroSrc.length){
+    heroEl.innerHTML=highlightFaby(heroSrc.slice(0,i))+'<span class="cursor"></span>';
+    i++;
+    const ch=heroSrc[i-1];
+    setTimeout(typeHero,ch==='\n'?60:(Math.random()*22+8));
+  }
+}
+const heroObs=new IntersectionObserver(es=>{
+  if(es[0].isIntersecting){typeHero();heroObs.disconnect();}
+},{threshold:.2});
+heroObs.observe(heroEl);
+
+/* ---------- marquee duplicate ---------- */
+const mq=document.getElementById('marquee');
+mq.innerHTML+=mq.innerHTML;
+
+/* ---------- tabs ---------- */
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.code-panel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.panel).classList.add('active');
+  });
+});
+
+/* ---------- scroll reveal ---------- */
+const obs=new IntersectionObserver(es=>{
+  es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');obs.unobserve(e.target)}});
+},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+/* ---------- copy contract address ---------- */
+const caBox=document.getElementById('tokenCABox');
+if(caBox){
+  caBox.addEventListener('click',()=>{
+    navigator.clipboard.writeText(document.getElementById('tokenCA').textContent).then(()=>{
+      const hint=document.getElementById('copyHint');
+      hint.textContent='COPIED ✓';
+      setTimeout(()=>hint.textContent='⧉',1800);
+    });
+  });
+}
+
+/* ---------- mobile nav ---------- */
+const burger=document.getElementById('burger'),links=document.getElementById('navLinks');
+burger.addEventListener('click',()=>links.classList.toggle('open'));
+links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>links.classList.remove('open')));
+</script>
+</body>
+</html>

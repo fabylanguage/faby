@@ -1,0 +1,13 @@
+node_modules/
+*.tgz
+*.vsix
+*.blob
+sea-prep.blob
+faby-macos-arm64
+faby-linux-x64
+faby-*.exe
+.DS_Store
+credentials.json
+.npmrc
+*.log
+guestbook.json

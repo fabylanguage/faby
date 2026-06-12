@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Faby CLI — Complete Command Reference · @fabycode/cli on NPM</title>
+<meta name="description" content="The complete reference for the Faby CLI — compiler, interpreter, formatter, test runner, REPL and package manager in one binary. Now on NPM: npm i -g @fabycode/cli">
+<link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#030303;--bg-2:#0a0a0a;--bg-3:#101010;
+  --border:#1d1d1d;--border-2:#2c2c2c;
+  --text:#f0f0f0;--muted:#8f8f8f;--dim:#5a5a5a;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:90px;overflow-x:clip}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.7;-webkit-font-smoothing:antialiased}
+::selection{background:#fff;color:#000}
+
+nav.top{
+  position:fixed;top:0;left:0;right:0;z-index:100;height:64px;
+  background:rgba(3,3,3,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;padding:0 28px;
+}
+.logo{display:flex;align-items:center;gap:11px;text-decoration:none;color:var(--text)}
+.logo img{width:30px;height:30px}
+.logo span{font-weight:800;font-size:17px;letter-spacing:4px}
+.logo small{font-family:var(--mono);font-size:10px;color:var(--dim);border:1px solid var(--border-2);border-radius:4px;padding:2px 6px}
+nav.top .links{display:flex;gap:22px;align-items:center}
+nav.top a.lnk{color:var(--muted);text-decoration:none;font-size:13px;font-family:var(--mono);letter-spacing:1px;transition:color .2s}
+nav.top a.lnk:hover{color:#fff}
+
+.layout{display:grid;grid-template-columns:280px 1fr;max-width:1300px;margin:0 auto;gap:0}
+aside{
+  position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto;
+  border-right:1px solid var(--border);padding:36px 22px 60px 28px;
+}
+aside::-webkit-scrollbar{width:4px}
+aside::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:2px}
+aside b{display:block;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin:26px 0 10px;font-weight:600}
+aside b:first-child{margin-top:0}
+aside a{display:block;color:var(--muted);text-decoration:none;font-size:13.5px;padding:6px 12px;border-radius:7px;border-left:1px solid transparent;transition:all .2s;margin-left:-1px}
+aside a:hover{color:#fff;background:var(--bg-2)}
+aside a.active{color:#fff;background:var(--bg-2);border-left:1px solid #fff}
+aside a .mono{font-family:var(--mono);font-size:12.5px}
+
+main{padding:56px 56px 120px;min-width:0}
+.crumb{font-family:var(--mono);font-size:12px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px}
+h1{font-size:clamp(34px,4.5vw,52px);font-weight:900;letter-spacing:-1.5px;line-height:1.08;margin-bottom:18px}
+.lead{font-size:17px;color:var(--muted);max-width:740px;margin-bottom:26px}
+.meta-pills{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.pill{font-family:var(--mono);font-size:11.5px;color:var(--muted);border:1px solid var(--border-2);border-radius:100px;padding:5px 14px;letter-spacing:1px}
+.pill.hot{background:#fff;color:#000;font-weight:700;border-color:#fff}
+
+/* status badges */
+.sb{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:1.5px;border-radius:4px;padding:2px 8px;white-space:nowrap;vertical-align:middle;text-transform:uppercase}
+.sb-shipped{background:#fff;color:#000}
+.sb-progress{background:transparent;color:#fff;border:1px solid #fff}
+.sb-planned{background:transparent;color:var(--dim);border:1px solid var(--border-2)}
+h2 .sb{font-size:11px;margin-left:10px;vertical-align:middle}
+td .sb{margin-left:0}
+.legend{display:flex;gap:18px;flex-wrap:wrap;align-items:center;margin:18px 0 4px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+tr.planned td:first-child{color:var(--muted)}
+tr.planned td{opacity:.82}
+
+.release-banner{
+  display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+  border:1px solid var(--border-2);border-left:3px solid #fff;border-radius:12px;
+  background:radial-gradient(ellipse 60% 140% at 0% 50%,rgba(255,255,255,.07),transparent),var(--bg-2);
+  padding:22px 26px;margin:34px 0 10px;max-width:860px;
+}
+.release-banner .dot{width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 12px #fff;animation:pulse 2.2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.release-banner b{font-size:15px;letter-spacing:.3px}
+.release-banner code{font-family:var(--mono);font-size:13px;background:var(--bg);border:1px solid var(--border-2);border-radius:8px;padding:8px 14px;color:#fff}
+
+section.doc{padding-top:70px;border-top:1px solid var(--border);margin-top:70px}
+section.doc:first-of-type{border-top:none;margin-top:40px;padding-top:0}
+h2{font-size:30px;font-weight:800;letter-spacing:-.8px;margin-bottom:18px}
+h2 .hash{color:var(--dim);font-weight:400;margin-right:8px}
+h2 code{font-family:var(--mono);font-weight:700;font-size:26px}
+h3{font-size:19px;font-weight:700;margin:38px 0 12px;letter-spacing:-.3px}
+p{color:var(--muted);margin-bottom:16px;max-width:780px}
+p strong,li strong{color:#fff;font-weight:600}
+ul.doc-list{margin:0 0 18px 22px;color:var(--muted);max-width:760px}
+ul.doc-list li{margin-bottom:8px}
+code.inline{font-family:var(--mono);font-size:13px;color:#e8e8e8;background:var(--bg-3);border:1px solid var(--border);border-radius:6px;padding:2px 7px;white-space:nowrap}
+
+.synopsis{
+  font-family:var(--mono);font-size:14px;color:#fff;background:var(--bg-3);
+  border:1px solid var(--border-2);border-radius:10px;padding:16px 20px;margin:18px 0 22px;
+  max-width:840px;overflow-x:auto;white-space:pre;
+}
+.synopsis .opt{color:var(--muted)}
+
+.term{
+  background:var(--bg-2);border:1px solid var(--border-2);border-radius:12px;overflow:hidden;
+  font-family:var(--mono);font-size:13.5px;margin:22px 0 30px;max-width:840px;
+  box-shadow:0 14px 40px rgba(0,0,0,.45);
+}
+.term-bar{display:flex;align-items:center;gap:8px;padding:11px 16px;border-bottom:1px solid var(--border);background:var(--bg-3)}
+.term-bar i{width:10px;height:10px;border-radius:50%;background:#2e2e2e;display:block}
+.term-bar span{margin-left:auto;font-size:11px;color:var(--dim);letter-spacing:1px}
+pre.term-body{padding:20px 22px;line-height:1.75;overflow-x:auto;white-space:pre}
+.tk-kw{color:#fff;font-weight:700}
+.tk-cmt{color:#525252;font-style:italic}
+.tk-op{color:#777}
+.tk-out{color:#a8a8a8}
+.tk-ok{color:#fff;font-weight:700}
+
+.note{
+  border:1px solid var(--border-2);border-left:3px solid #fff;border-radius:10px;
+  background:var(--bg-2);padding:18px 22px;margin:22px 0 28px;max-width:800px;
+}
+.note b{color:#fff;font-size:12px;letter-spacing:2.5px;text-transform:uppercase;display:block;margin-bottom:6px}
+.note p{margin:0;font-size:14.5px}
+
+table{border-collapse:collapse;width:100%;max-width:840px;margin:20px 0 30px;font-size:14px}
+th{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);text-align:left;padding:12px 16px;border-bottom:1px solid var(--border-2);font-weight:500}
+td{padding:13px 16px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top}
+td:first-child{font-family:var(--mono);font-size:13px;color:#fff;white-space:nowrap}
+tr:hover td{background:var(--bg-2)}
+
+.next{display:flex;justify-content:space-between;gap:16px;margin-top:90px;flex-wrap:wrap}
+.next a{
+  flex:1;min-width:240px;text-decoration:none;border:1px solid var(--border-2);border-radius:12px;
+  padding:20px 24px;color:var(--text);transition:all .25s;background:var(--bg-2);
+}
+.next a:hover{border-color:#fff;box-shadow:0 0 30px rgba(255,255,255,.07)}
+.next a small{display:block;font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.next a b{font-size:16px;font-weight:700}
+
+.menu-toggle{display:none;position:fixed;bottom:24px;right:24px;z-index:110;background:#fff;color:#000;border:none;border-radius:100px;padding:13px 22px;font-weight:700;font-size:13px;letter-spacing:1px;cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.6)}
+
+@media(max-width:980px){
+  .layout{grid-template-columns:1fr}
+  aside{
+    position:fixed;left:0;top:64px;bottom:0;width:290px;z-index:105;background:var(--bg);
+    transform:translateX(-100%);transition:transform .3s ease;height:auto;
+  }
+  aside.open{transform:none;box-shadow:30px 0 60px rgba(0,0,0,.6)}
+  main{padding:44px 22px 110px}
+  .menu-toggle{display:block}
+  nav.top .links a.lnk:not(:last-child){display:none}
+}
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <a class="logo" href="/"><img src="assets/icon.svg" alt="Faby logo"><span>FABY</span><small>CLI</small></a>
+  <div class="links">
+    <a class="lnk" href="/docs">LANGUAGE DOCS</a>
+    <a class="lnk" href="/">← FABY-LANG.DEV</a>
+  </div>
+</nav>
+
+<div class="layout">
+<aside id="sidebar">
+  <b>Getting Started</b>
+  <a href="#overview">Overview</a>
+  <a href="#install">Installation (NPM)</a>
+  <a href="#quickstart">Quick Start</a>
+  <a href="#anatomy">Anatomy &amp; Global Flags</a>
+  <b>Core Commands</b>
+  <a href="#cmd-init"><span class="mono">faby init</span></a>
+  <a href="#cmd-run"><span class="mono">faby run</span></a>
+  <a href="#cmd-build"><span class="mono">faby build</span></a>
+  <a href="#cmd-check"><span class="mono">faby check</span></a>
+  <a href="#cmd-fmt"><span class="mono">faby fmt</span></a>
+  <a href="#cmd-test"><span class="mono">faby test</span></a>
+  <a href="#cmd-repl"><span class="mono">faby repl</span></a>
+  <b>AI Commands</b>
+  <a href="#cmd-explain"><span class="mono">faby explain</span></a>
+  <a href="#cmd-gen"><span class="mono">faby gen</span></a>
+  <a href="#cmd-review"><span class="mono">faby review</span></a>
+  <b>Packages</b>
+  <a href="#cmd-add"><span class="mono">faby add / remove</span></a>
+  <a href="#cmd-publish"><span class="mono">faby publish</span></a>
+  <b>Utilities</b>
+  <a href="#cmd-doctor"><span class="mono">faby doctor</span></a>
+  <a href="#completions">Shell Completions</a>
+  <a href="#env">Environment Variables</a>
+  <a href="#exit-codes">Exit Codes</a>
+  <a href="#ci">CI Integration</a>
+  <a href="#troubleshooting">Troubleshooting</a>
+</aside>
+
+<main>
+  <div class="crumb">Docs / CLI Reference / v0.3.0</div>
+  <h1>The Faby CLI</h1>
+  <p class="lead">One binary. <strong>faby</strong> is the interpreter, static checker, canonical formatter, <strong>property-test runner</strong> and REPL for the Faby language — as a standalone binary (no Node required) <em>and</em> on NPM.</p>
+  <div class="meta-pills">
+    <span class="pill hot">v0.3 · test + spawn</span><span class="pill">STANDALONE BINARY</span><span class="pill"><a href="https://www.npmjs.com/package/@fabycode/cli" target="_blank" rel="noopener" style="color:inherit;text-decoration:none">@fabycode/cli</a></span><span class="pill">MACOS · LINUX · NPM-ANYWHERE</span>
+  </div>
+
+  <div class="release-banner">
+    <span class="dot"></span>
+    <b>New in v0.3: <code style="background:none;border:none;padding:0">faby test</code> — your contracts auto-generate property tests that hunt for counterexamples.</b>
+    <code>npm i -g @fabycode/cli</code>
+  </div>
+
+  <!-- ================================================== -->
+  <section class="doc" id="overview">
+    <h2><span class="hash">#</span>Overview</h2>
+    <p>Faby is built in public and shipped as fast as we can build it. This reference documents the whole CLI design — and is <strong>honest about what runs today vs what is still being built</strong>. Every command below carries its real status.</p>
+    <div class="legend">
+      <span><span class="sb sb-shipped">Shipped</span> runs now</span>
+      <span><span class="sb sb-progress">In&nbsp;progress</span> being built</span>
+      <span><span class="sb sb-planned">Planned</span> designed, not yet built</span>
+    </div>
+    <table>
+      <tr><th>Command</th><th>Purpose</th><th>Status</th></tr>
+      <tr><td>faby init</td><td>Scaffold a new Faby project</td><td><span class="sb sb-shipped">Shipped</span></td></tr>
+      <tr><td>faby run</td><td>Execute a program with the interpreter (instant start)</td><td><span class="sb sb-shipped">Shipped</span></td></tr>
+      <tr><td>faby repl</td><td>Interactive session</td><td><span class="sb sb-shipped">Shipped</span></td></tr>
+      <tr><td>faby version</td><td>Print version</td><td><span class="sb sb-shipped">Shipped</span></td></tr>
+      <tr><td>faby fmt</td><td>Format to the one canonical form</td><td><span class="sb sb-shipped">Shipped</span></td></tr>
+      <tr><td>faby check</td><td>Static analysis: unknown names, arity, exhaustiveness</td><td><span class="sb sb-shipped">Shipped</span></td></tr>
+      <tr><td>faby test</td><td>Test blocks + contract-derived property fuzzing</td><td><span class="sb sb-shipped">Shipped</span></td></tr>
+      <tr class="planned"><td>faby build</td><td>Compile to native binary or WASM</td><td><span class="sb sb-planned">Planned</span></td></tr>
+      <tr class="planned"><td>faby explain</td><td>AI: explain any program in plain language</td><td><span class="sb sb-planned">Planned</span></td></tr>
+      <tr class="planned"><td>faby gen</td><td>AI: generate a flow from an intent description</td><td><span class="sb sb-planned">Planned</span></td></tr>
+      <tr class="planned"><td>faby review</td><td>AI: review changes for intent drift and contract gaps</td><td><span class="sb sb-planned">Planned</span></td></tr>
+      <tr class="planned"><td>faby add / remove</td><td>Manage dependencies (content-addressed, lockfile-first)</td><td><span class="sb sb-planned">Planned</span></td></tr>
+      <tr class="planned"><td>faby publish</td><td>Publish a package to the Faby index</td><td><span class="sb sb-planned">Planned</span></td></tr>
+      <tr class="planned"><td>faby doctor</td><td>Diagnose your installation and environment</td><td><span class="sb sb-planned">Planned</span></td></tr>
+    </table>
+    <div class="note"><b>Straight talk</b><p>Shipped today: <code class="inline">run</code>, <code class="inline">check</code>, <code class="inline">fmt</code>, <code class="inline">test</code>, <code class="inline">repl</code>, <code class="inline">init</code>, <code class="inline">version</code> — a real interpreter, static checker, canonical formatter and property-test runner, plus structured concurrency (<code class="inline">spawn</code>/<code class="inline">await</code>) in the language (<code class="inline">npm i -g @fabycode/cli</code>). The rest of this page documents the designed behaviour of commands we are actively building. We mark each one so you always know what is real — <code class="inline">--flags</code> shown for planned commands describe the target design.</p></div>
+  </section>
+
+  <!-- ================================================== -->
+  <section class="doc" id="install">
+    <h2><span class="hash">#</span>Installation</h2>
+    <h3>Standalone binary — no Node required <span style="font-family:var(--mono);font-size:12px;color:var(--dim)">(macOS · Linux)</span></h3>
+    <p>One self-contained executable, nothing else to install. The script detects your OS &amp; architecture and drops a <code class="inline">faby</code> binary into your path.</p>
+    <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal</span></div>
+<pre class="term-body"><span class="tk-cmt"># install the standalone binary (macOS arm64 · Linux x64)</span>
+<span class="tk-op">$</span> curl -fsSL https://faby.codes/install.sh | sh
+<span class="tk-out">Faby — downloading faby-macos-arm64 ...
+✓ Installed: faby 0.1.0 (genesis) — designed by claude-fable-5</span>
+
+<span class="tk-cmt"># or grab a binary directly</span>
+<span class="tk-op">$</span> curl -fsSL https://faby.codes/releases/faby-linux-x64 -o faby &amp;&amp; chmod +x faby</pre></div>
+    <h3>Via NPM <span style="font-family:var(--mono);font-size:12px;color:var(--dim)">(any platform, incl. Windows)</span></h3>
+    <p>The <a href="https://www.npmjs.com/package/@fabycode/cli" style="color:#fff" target="_blank" rel="noopener"><code class="inline">@fabycode/cli</code></a> package runs anywhere Node ≥ 18 is installed — the recommended route for Windows and Intel macOS.</p>
+    <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal</span></div>
+<pre class="term-body"><span class="tk-cmt"># install globally</span>
+<span class="tk-op">$</span> npm i -g @fabycode/cli
+
+<span class="tk-cmt"># or run ad-hoc, zero install</span>
+<span class="tk-op">$</span> npx @fabycode/cli run hello.fy
+
+<span class="tk-cmt"># verify</span>
+<span class="tk-op">$</span> faby version
+<span class="tk-out">faby 0.1.0 (genesis) — designed by claude-fable-5</span></pre></div>
+    <div class="note"><b>What the binary is</b><p>The standalone binary bundles the Genesis runtime (the same interpreter as the <a href="/playground" style="color:#fff">playground</a> and the npm package) into a single executable — so it runs with <strong>zero dependencies, no Node install</strong>. It is not yet ahead-of-time compiled to native machine code; that's <code class="inline">faby build --native</code>, on the v0.5 "Horizon" roadmap. Windows binaries and Intel-macOS binaries are coming; use npm there for now.</p></div>
+    <h3>Editor support — VS Code <span class="sb sb-shipped" style="margin-left:6px">Shipped</span></h3>
+    <p>Syntax highlighting for <code class="inline">.fy</code> files — flows, pipelines, <code class="inline">match</code>, contracts, <code class="inline">spawn</code>, intent blocks and string interpolation.</p>
+    <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal</span></div>
+<pre class="term-body"><span class="tk-cmt"># install the extension from the .vsix</span>
+<span class="tk-op">$</span> curl -fsSL https://faby.codes/releases/faby-0.1.0.vsix -o faby.vsix
+<span class="tk-op">$</span> code --install-extension faby.vsix</pre></div>
+    <p style="color:var(--dim);font-size:14px">Or install from the <a href="https://marketplace.visualstudio.com/items?itemName=fabycodes.faby" target="_blank" rel="noopener" style="color:#fff">VS Code Marketplace</a> — search “Faby”, or run <code class="inline">code --install-extension fabycodes.faby</code>. Also: <a href="/releases/faby-0.1.0.vsix" style="color:#fff">download the .vsix</a>.</p>
+  </section>
+
+  <!-- ================================================== -->
+  <section class="doc" id="quickstart">
+    <h2><span class="hash">#</span>Quick Start</h2>
+    <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal</span></div>
+<pre class="term-body"><span class="tk-op">$</span> npm i -g @fabycode/cli
+<span class="tk-op">$</span> faby init hello &amp;&amp; cd hello
+<span class="tk-out">created hello/main.fy
+created hello/faby.lock</span>
+<span class="tk-op">$</span> faby run main.fy
+<span class="tk-out">Hello, Faby.</span>
+<span class="tk-op">$</span> faby check
+<span class="tk-ok">✓ 1 file · 0 errors · 2 contracts verified statically</span>
+<span class="tk-op">$</span> faby build --native
+<span class="tk-out">→ hello (1.9 MB, static, 412ms)</span></pre></div>
+  </section>
+
+  <!-- ================================================== -->
+  <section class="doc" id="anatomy">
+    <h2><span class="hash">#</span>Anatomy &amp; Global Flags</h2>
+    <div class="synopsis">faby &lt;command&gt; [arguments] <span class="opt">[--flags]</span></div>
+    <p>Global flags work on <strong>every</strong> command:</p>
+    <table>
+      <tr><th>Flag</th><th>Description</th></tr>
+      <tr><td>--json</td><td>Emit machine-readable JSON instead of human output. Stable schema, versioned with the CLI.</td></tr>
+      <tr><td>--quiet, -q</td><td>Suppress everything except errors and requested output.</td></tr>
+      <tr><td>--verbose, -v</td><td>Show timing, cache decisions and internal phases.</td></tr>
+      <tr><td>--no-color</td><td>Disable ANSI colors (auto-detected for pipes and CI).</td></tr>
+      <tr><td>--offline</td><td>Hard-fail any command that would touch the network.</td></tr>
+      <tr><td>--version</td><td>Print version and exit.</td></tr>
+      <tr><td>--help, -h</td><td>Contextual help for any command or subcommand.</td></tr>
+    </table>
+    <div class="note"><b>Agent-friendly by design</b><p>With <code class="inline">--json</code>, every diagnostic carries a stable <code class="inline">code</code>, a byte-exact <code class="inline">span</code>, and a <code class="inline">fix</code> suggestion when one exists — so models can apply repairs without guessing.</p></div>
+  </section>
+
+  <!-- ================================================== -->
+  <section class="doc" id="cmd-init">
+    <h2><span class="hash">#</span><code>faby init</code><span class="sb sb-shipped">Shipped</span></h2>
+    <p>Scaffold a new project. Creates the minimal canonical layout — a <code class="inline">main.fy</code> and a <code class="inline">faby.lock</code>. No config file, because there is nothing to configure.</p>
+    <div class="synopsis">faby init [name] <span class="opt">[--lib] [--agent] [--web]</span></div>
+    <table>
+      <tr><th>Flag</th><th>Description</th></tr>
+      <tr><td>--lib</td><td>Library layout: <code class="inline">src/lib.fy</code> with a public flow and inline tests.</td></tr>
+      <tr><td>--agent</td><td>Agent starter: intent-annotated flow with <code class="inline">use ai</code> wired up.</td></tr>
+      <tr><td>--web</td><td>Web service starter: <code class="inline">use http</code> with routes and a health check.</td></tr>
+    </table>
+    <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal</span></div>
+<pre class="term-body"><span class="tk-op">$</span> faby init my-agent --agent
+<span class="tk-out">created my-agent/main.fy        (intent-annotated agent starter)
+created my-agent/faby.lock
+→ next: cd my-agent && faby run main.fy</span></pre></div>
+  </section>
+
+  <!-- ================================================== -->
+  <section class="doc" id="cmd-run">
+    <h2><span class="hash">#</span><code>faby run</code><span class="sb sb-shipped">Shipped</span></h2>
+    <p>Execute a program with the tree-walking interpreter. Cold start under 50ms — built for tight agent loops and rapid iteration. Contracts are <strong>always enforced</strong> in run mode.</p>
+    <div class="synopsis">faby run &lt;file.fy&gt; <span class="opt">[--watch] [--trace] [--cap &lt;caps&gt;] [-- args...]</span></div>
+    <table>
+      <tr><th>Flag</th><th>Description</th></tr>
+      <tr><td>--watch, -w</td><td>Re-run on file change. State of the terminal is preserved between runs.</td></tr>
+      <tr><td>--trace</td><td>Print every flow entry/exit with timing — a built-in flame view for the terminal.</td></tr>
+      <tr><td>--cap &lt;caps&gt;</td><td>Capability allow-list: <code class="inline">net</code>, <code class="inline">fs</code>, <code class="inline">env</code>, <code class="inline">proc</code>, <code class="inline">ai</code>. Anything not listed is denied at runtime. Example: <code class="inline">--cap net,fs</code>.</td></tr>
+      <tr><td>-- args...</td><td>Everything after <code class="inline">--</code> is passed to the program's <code class="inline">args()</code>.</td></tr>
+    </table>
+    <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal</span></div>
+<pre class="term-body"><span class="tk-cmt"># run a crawler that may use the network but NOT the filesystem</span>
+<span class="tk-op">$</span> faby run crawler.fy --cap net -- https://faby.codes
+<span class="tk-out">fetched 12 pages · 0 failures · 1.4s</span>
+
+<span class="tk-cmt"># watch mode while developing</span>
+<span class="tk-op">$</span> faby run server.fy --watch
+<span class="tk-out">▲ watching 3 files — last run OK (38ms)</span></pre></div>
+    <div class="note"><b>Sandboxed by default</b><p>Without <code class="inline">--cap</code>, a program gets <strong>no</strong> network, filesystem, process or AI access. Generated code runs in a deny-by-default sandbox — you grant exactly what it needs.</p></div>
+  </section>
+
+  <!-- ================================================== -->
+  <section class="doc" id="cmd-build">
+    <h2><span class="hash">#</span><code>faby build</code><span class="sb sb-planned">Planned</span></h2>
+    <p>Ahead-of-time compilation through the Faby IR. Produces a single static binary or a WASM module. Builds are <strong>deterministic</strong>: same input, same byte-identical output, on any machine.</p>
+    <div class="synopsis">faby build <span class="opt">[file.fy] [--native | --wasm] [--release] [--target &lt;triple&gt;] [--contracts &lt;mode&gt;] [-o &lt;out&gt;]</span></div>
+    <table>
+      <tr><th>Flag</th><th>Description</th></tr>
+      <tr><td>--native</td><td>Compile to a static native binary for the host (default).</td></tr>
+      <tr><td>--wasm</td><td>Compile to a WASM module + generated JS/TS bindings.</td></tr>
+      <tr><td>--release</td><td>Full optimization. Roughly 3–8× faster output, longer compile.</td></tr>
+      <tr><td>--target &lt;triple&gt;</td><td>Cross-compile: <code class="inline">linux-x64</code>, <code class="inline">linux-arm64</code>, <code class="inline">darwin-arm64</code>, <code class="inline">windows-x64</code>, …</td></tr>
+      <tr><td>--contracts &lt;mode&gt;</td><td><code class="inline">full</code> (default) keeps all runtime guards · <code class="inline">proven</code> keeps only unproven ones · <code class="inline">off</code> strips guards (requires <code class="inline">--i-accept-the-risk</code>).</td></tr>
+      <tr><td>-o &lt;out&gt;</td><td>Output path. Defaults to the flow file's name.</td></tr>
+    </table>
+    <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal</span></div>
+<pre class="term-body"><span class="tk-cmt"># release binary for a Linux server, built on a Mac</span>
+<span class="tk-op">$</span> faby build server.fy --release --target linux-x64 -o dist/server
+<span class="tk-out">⠿ parse 12ms · check 31ms · prove 44ms · codegen 380ms
+→ dist/server (2.3 MB, static, linux-x64)
+  contracts: 17 proven statically, 3 runtime guards kept</span>
+
+<span class="tk-cmt"># WASM for the browser, with TypeScript bindings</span>
+<span class="tk-op">$</span> faby build engine.fy --wasm -o web/engine
+<span class="tk-out">→ web/engine.wasm (412 KB) · web/engine.d.ts · web/engine.js</span></pre></div>
+  </section>
+
+  <!-- ================================================== -->
+  <section class="doc" id="cmd-check">
+    <h2><span class="hash">#</span><code>faby check</code><span class="sb sb-shipped">Shipped</span></h2>
+    <p>The full static pipeline without execution: parse, type-check, refinement inference, contract proving, lints. This is the command CI should run on every commit.</p>
+    <div class="synopsis">faby check <span class="opt">[paths...] [--intent] [--strict] [--fix] [--watch]</span></div>
+    <table>
+      <tr><th>Flag</th><th>Description</th></tr>
+      <tr><td>--intent</td><td><strong>AI:</strong> verify each <code class="inline">intent</code> block still matches what its flow does; report drift with evidence.</td></tr>
+      <tr><td>--strict</td><td>Lints become errors; unproven contracts must be explicitly acknowledged.</td></tr>
+      <tr><td>--fix</td><td>Apply all safe, mechanical fixes (unused imports, canonical renames).</td></tr>
+      <tr><td>--watch</td><td>Continuous checking while you edit.</td></tr>
+    </table>
+    <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal</span></div>
+<pre class="term-body"><span class="tk-op">$</span> faby check --strict --json | jq '.summary'
+<span class="tk-out">{
+  "files": 14,
+  "errors": 0,
+  "contracts": { "proven": 41, "guarded": 6 },
+  "intents":   { "checked": 9, "drifted": 0 }
+}</span></pre></div>
+  </section>
+
+  <!-- ================================================== -->
+  <section class="doc" id="cmd-fmt">
+    <h2><span class="hash">#</span><code>faby fmt</code><span class="sb sb-shipped">Shipped</span></h2>
+    <p>Formats code into the <strong>one canonical form</strong>. On already-valid code, <code class="inline">faby fmt</code> changes nothing — it is the identity function. There are no options to configure, which is the point.</p>
+    <div class="synopsis">faby fmt <span class="opt">[paths...] [--check] [--stdin]</span></div>
+    <table>
+      <tr><th>Flag</th><th>Description</th></tr>
+      <tr><td>--check</td><td>Exit 1 if anything would change; print a minimal diff. For CI.</td></tr>
+      <tr><td>--stdin</td><td>Format from stdin to stdout — for editor integrations.</td></tr>
+    </table>
+  </section>
+
+  <!-- ================================================== -->
+  <section class="doc" id="cmd-test">
+    <h2><span class="hash">#</span><code>faby test</code><span class="sb sb-shipped">Shipped</span></h2>
+    <p>Runs inline <code class="inline">test "..."</code> blocks <em>and</em> auto-generates property-based tests from your contracts: every flow with an <code class="inline">expect</code>/<code class="inline">ensure</code> pair becomes a property the runner attacks with generated, type-aware inputs. Inputs that fail <code class="inline">expect</code> are skipped (precondition not met); any input that passes <code class="inline">expect</code> but violates <code class="inline">ensure</code> — or crashes — is reported as a counterexample.</p>
+    <div class="synopsis">faby test &lt;file.fy&gt; <span class="opt">[--props=&lt;n&gt;] [--json]</span></div>
+    <table>
+      <tr><th>Flag</th><th>Description</th></tr>
+      <tr><td>--props=&lt;n&gt;</td><td>Inputs generated per contract property (default 100).</td></tr>
+      <tr><td>--json</td><td>Machine-readable results for CI.</td></tr>
+    </table>
+    <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal</span></div>
+<pre class="term-body"><span class="tk-op">$</span> faby test billing.fy --props=300
+<span class="tk-ok">✓ test  discount never exceeds price</span>
+<span class="tk-out">✗ property  halve  ·  0/300 inputs, 0 skipped
+    counterexample halve(-20) → contract violated: ensure</span>
+
+<span class="tk-out">1/2 passed · 1 failed</span></pre></div>
+    <div class="note"><b>Real, today</b><p>This runs in <code class="inline">@fabycode/cli</code> and the standalone binary now. It found the <code class="inline">halve(-20)</code> bug above by fuzzing — not by a hand-written case.</p></div>
+  </section>
+
+  <!-- ================================================== -->
+  <section class="doc" id="cmd-repl">
+    <h2><span class="hash">#</span><code>faby repl</code><span class="sb sb-shipped">Shipped</span></h2>
+    <p>An interactive session with the full standard library. Multi-line flows, type inspection with <code class="inline">:t</code>, and instant reload of your project's flows with <code class="inline">:load</code>.</p>
+    <div class="synopsis">faby repl <span class="opt">[--load &lt;file.fy&gt;] [--cap &lt;caps&gt;]</span></div>
+    <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>faby repl</span></div>
+<pre class="term-body"><span class="tk-op">faby&gt;</span> [1, 2, 3] |&gt; map(_ * 10) |&gt; sum
+<span class="tk-out">60 : Int</span>
+<span class="tk-op">faby&gt;</span> :t "ada@faby.codes"
+<span class="tk-out">Text — hint: Email.parse(…) to lift into a semantic type</span>
+<span class="tk-op">faby&gt;</span> :load main.fy
+<span class="tk-out">loaded 4 flows from main.fy</span></pre></div>
+  </section>
+
+  <!-- ================================================== -->
+  <section class="doc" id="cmd-explain">
+    <h2><span class="hash">#</span><code>faby explain</code> <span style="font-family:var(--mono);font-size:13px;color:var(--dim);letter-spacing:2px">AI</span><span class="sb sb-planned">Planned</span></h2>
+    <p>Plain-language explanation of any Faby program: what it does, which contracts protect it, where the risks are. Works on files you wrote — or on generated code you're about to trust.</p>
+    <div class="synopsis">faby explain &lt;file.fy&gt; <span class="opt">[--flow &lt;name&gt;] [--audience dev|reviewer|exec] [--model &lt;id&gt;]</span></div>
+    <table>
+      <tr><th>Flag</th><th>Description</th></tr>
+      <tr><td>--flow &lt;name&gt;</td><td>Explain a single flow instead of the whole file.</td></tr>
+      <tr><td>--audience</td><td>Tune the depth: <code class="inline">dev</code> (default), <code class="inline">reviewer</code> (risk-focused), <code class="inline">exec</code> (one paragraph, no jargon).</td></tr>
+      <tr><td>--model &lt;id&gt;</td><td>Model override. Defaults to <code class="inline">claude-fable-5</code>.</td></tr>
+    </table>
+  </section>
+
+  <!-- ================================================== -->
+  <section class="doc" id="cmd-gen">
+    <h2><span class="hash">#</span><code>faby gen</code> <span style="font-family:var(--mono);font-size:13px;color:var(--dim);letter-spacing:2px">AI</span><span class="sb sb-planned">Planned</span></h2>
+    <p>Generate a flow from an intent. The output always arrives with the intent block attached, contracts proposed, and <code class="inline">faby check</code> already passed — generation and verification in one step.</p>
+    <div class="synopsis">faby gen "&lt;intent&gt;" <span class="opt">[-o &lt;file.fy&gt;] [--sig "&lt;signature&gt;"] [--dry]</span></div>
+    <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal</span></div>
+<pre class="term-body"><span class="tk-op">$</span> faby gen "dedupe a list of emails case-insensitively, keep first occurrence" \
+    --sig "flow dedupe(xs: [Email]) -> [Email]" -o dedupe.fy
+<span class="tk-out">→ dedupe.fy · intent attached · 2 contracts proposed
+✓ faby check passed before writing to disk</span></pre></div>
+  </section>
+
+  <!-- ================================================== -->
+  <section class="doc" id="cmd-review">
+    <h2><span class="hash">#</span><code>faby review</code> <span style="font-family:var(--mono);font-size:13px;color:var(--dim);letter-spacing:2px">AI</span><span class="sb sb-planned">Planned</span></h2>
+    <p>Review a diff the way Faby thinks about code: does the change still satisfy each governing intent, are contracts weakened, did failure policies change. Designed to gate AI-generated pull requests.</p>
+    <div class="synopsis">faby review <span class="opt">[--diff &lt;ref&gt;] [--gate intent,contracts] [--json]</span></div>
+    <table>
+      <tr><th>Flag</th><th>Description</th></tr>
+      <tr><td>--diff &lt;ref&gt;</td><td>What to review — a git ref/range (default: working tree vs HEAD).</td></tr>
+      <tr><td>--gate &lt;list&gt;</td><td>Fail (exit 3) if any listed dimension regresses: <code class="inline">intent</code>, <code class="inline">contracts</code>, <code class="inline">caps</code>.</td></tr>
+    </table>
+  </section>
+
+  <!-- ================================================== -->
+  <section class="doc" id="cmd-add">
+    <h2><span class="hash">#</span><code>faby add / remove</code><span class="sb sb-planned">Planned</span></h2>
+    <p>Dependency management is lockfile-first and content-addressed: <code class="inline">faby.lock</code> pins exact content hashes, so a build can never silently change because a registry did.</p>
+    <div class="synopsis">faby add &lt;package&gt;<span class="opt">[@version]</span>   ·   faby remove &lt;package&gt;   ·   faby update <span class="opt">[package]</span></div>
+    <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal</span></div>
+<pre class="term-body"><span class="tk-op">$</span> faby add markdown@1.2
+<span class="tk-out">+ markdown 1.2.0 (sha256:9f2c…) → faby.lock
+audited: no caps requested beyond fs:read</span></pre></div>
+    <div class="note"><b>Capability audit</b><p>Every package declares the capabilities it needs. <code class="inline">faby add</code> shows them before anything is written — a package that suddenly wants <code class="inline">net</code> in a patch release is a hard prompt, not a silent upgrade.</p></div>
+  </section>
+
+  <!-- ================================================== -->
+  <section class="doc" id="cmd-publish">
+    <h2><span class="hash">#</span><code>faby publish</code><span class="sb sb-planned">Planned</span></h2>
+    <p>Publish a library to the Faby package index. Publishing runs the full gauntlet locally first: <code class="inline">check --strict</code>, <code class="inline">test</code>, <code class="inline">fmt --check</code> and a capability manifest review.</p>
+    <div class="synopsis">faby publish <span class="opt">[--dry] [--tag &lt;tag&gt;]</span></div>
+  </section>
+
+  <!-- ================================================== -->
+  <section class="doc" id="cmd-doctor">
+    <h2><span class="hash">#</span><code>faby doctor</code><span class="sb sb-planned">Planned</span></h2>
+    <p>Diagnoses the installation: binary integrity, PATH issues, Node bridge version, cache health, registry reachability. The first thing to run when something feels off.</p>
+    <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal</span></div>
+<pre class="term-body"><span class="tk-op">$</span> faby doctor
+<span class="tk-ok">✓ binary        faby 0.1.0 (genesis), darwin-arm64, signature OK
+✓ node bridge   18.19.0 via @fabycode/cli
+✓ cache         142 MB, healthy
+✓ registry      reachable (89ms)</span>
+<span class="tk-out">no issues found</span></pre></div>
+  </section>
+
+  <!-- ================================================== -->
+  <section class="doc" id="completions">
+    <h2><span class="hash">#</span>Shell Completions</h2>
+    <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>terminal</span></div>
+<pre class="term-body"><span class="tk-cmt"># zsh</span>
+<span class="tk-op">$</span> faby completions zsh &gt; ~/.zfunc/_faby
+
+<span class="tk-cmt"># bash</span>
+<span class="tk-op">$</span> faby completions bash &gt;&gt; ~/.bashrc
+
+<span class="tk-cmt"># fish</span>
+<span class="tk-op">$</span> faby completions fish &gt; ~/.config/fish/completions/faby.fish</pre></div>
+  </section>
+
+  <!-- ================================================== -->
+  <section class="doc" id="env">
+    <h2><span class="hash">#</span>Environment Variables</h2>
+    <table>
+      <tr><th>Variable</th><th>Description</th></tr>
+      <tr><td>FABY_HOME</td><td>Cache and toolchain root. Default: <code class="inline">~/.faby</code>.</td></tr>
+      <tr><td>FABY_MODEL</td><td>Default model for AI commands. Default: <code class="inline">claude-fable-5</code>.</td></tr>
+      <tr><td>FABY_API_KEY</td><td>API key used by AI commands and the <code class="inline">ai</code> stdlib module.</td></tr>
+      <tr><td>FABY_OFFLINE</td><td>Set to <code class="inline">1</code> to behave as if <code class="inline">--offline</code> were always passed.</td></tr>
+      <tr><td>FABY_REGISTRY</td><td>Override the package registry URL (for mirrors / air-gapped setups).</td></tr>
+      <tr><td>NO_COLOR</td><td>Respected everywhere, per the no-color.org convention.</td></tr>
+    </table>
+  </section>
+
+  <!-- ================================================== -->
+  <section class="doc" id="exit-codes">
+    <h2><span class="hash">#</span>Exit Codes</h2>
+    <p>Exit codes are part of the CLI's contract — stable across versions, safe to script against:</p>
+    <table>
+      <tr><th>Code</th><th>Meaning</th></tr>
+      <tr><td>0</td><td>Success.</td></tr>
+      <tr><td>1</td><td>Program error: the user's code failed (type error, failed contract, runtime fail).</td></tr>
+      <tr><td>2</td><td>Usage error: unknown command, bad flags, missing file.</td></tr>
+      <tr><td>3</td><td>Gate failure: <code class="inline">--check</code> / <code class="inline">--gate</code> / <code class="inline">--strict</code> conditions not met.</td></tr>
+      <tr><td>4</td><td>Capability denied: program requested an ungrant­ed capability.</td></tr>
+      <tr><td>5</td><td>Network/registry failure (only possible without <code class="inline">--offline</code>).</td></tr>
+      <tr><td>10</td><td>Internal CLI fault — always a bug, please report it.</td></tr>
+    </table>
+  </section>
+
+  <!-- ================================================== -->
+  <section class="doc" id="ci">
+    <h2><span class="hash">#</span>CI Integration</h2>
+    <p>The canonical CI pipeline is three commands. With NPM as the install channel it drops into any existing Node-based CI without new tooling:</p>
+    <div class="term"><div class="term-bar"><i></i><i></i><i></i><span>.github/workflows/faby.yml</span></div>
+<pre class="term-body"><span class="tk-out">jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }</span>
+      <span class="tk-kw">- run: npm i -g @fabycode/cli</span>
+      <span class="tk-kw">- run: faby fmt --check</span>
+      <span class="tk-kw">- run: faby check --strict --json</span>
+      <span class="tk-kw">- run: faby test --props 512</span></pre></div>
+  </section>
+
+  <!-- ================================================== -->
+  <section class="doc" id="troubleshooting">
+    <h2><span class="hash">#</span>Troubleshooting</h2>
+    <h3><code class="inline">faby: command not found</code> after npm install</h3>
+    <p>Your global npm bin directory is not on PATH. Run <code class="inline">npm prefix -g</code> and add its <code class="inline">bin</code> folder to PATH — or use <code class="inline">npx @fabycode/cli</code> as a zero-setup fallback.</p>
+    <h3>AI commands fail with <code class="inline">capability denied: ai</code></h3>
+    <p>By design. Set <code class="inline">FABY_API_KEY</code> and grant the capability explicitly: <code class="inline">faby run agent.fy --cap ai,net</code>.</p>
+    <h3>Build output differs between machines</h3>
+    <p>It shouldn't — builds are deterministic. If you see a difference, run <code class="inline">faby doctor</code> and file a bug with both outputs; this is a release-blocking defect for us.</p>
+    <h3>Anything else</h3>
+    <p>Run <code class="inline">faby doctor --json</code> and open an issue, or ping <a href="https://x.com/fabylanguage" style="color:#fff">@fabylanguage</a>.</p>
+  </section>
+
+  <div class="next">
+    <a href="/docs"><small>← Language</small><b>The Faby Docs</b></a>
+    <a href="/#token" style="text-align:right"><small>Community →</small><b>$FABY Token &amp; Socials</b></a>
+  </div>
+</main>
+</div>
+
+<button class="menu-toggle" id="menuToggle">MENU</button>
+
+<script>
+const links=[...document.querySelectorAll('aside a')];
+const secs=links.map(a=>document.querySelector(a.getAttribute('href')));
+const spy=new IntersectionObserver(es=>{
+  es.forEach(e=>{
+    if(e.isIntersecting){
+      links.forEach(l=>l.classList.remove('active'));
+      const l=links.find(l=>l.getAttribute('href')==='#'+e.target.id);
+      if(l)l.classList.add('active');
+    }
+  });
+},{rootMargin:'-15% 0px -75% 0px'});
+secs.forEach(s=>s&&spy.observe(s));
+const sb=document.getElementById('sidebar'),mt=document.getElementById('menuToggle');
+mt.addEventListener('click',()=>sb.classList.toggle('open'));
+links.forEach(a=>a.addEventListener('click',()=>sb.classList.remove('open')));
+</script>
+</body>
+</html>

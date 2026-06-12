@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="42%" r="85%">
+      <stop offset="0%" stop-color="#161616"/>
+      <stop offset="55%" stop-color="#080808"/>
+      <stop offset="100%" stop-color="#000000"/>
+    </radialGradient>
+    <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+      <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1280" height="640" fill="url(#glow)"/>
+  <rect width="1280" height="640" fill="url(#grid)"/>
+
+  <rect x="30" y="30" width="1220" height="580" fill="none" stroke="#ffffff" stroke-opacity="0.12" stroke-width="2"/>
+  <g stroke="#ffffff" stroke-opacity="0.6" stroke-width="3" stroke-linecap="round">
+    <path d="M 30 68 V 30 H 68"/>
+    <path d="M 1212 30 H 1250 V 68"/>
+    <path d="M 1250 572 V 610 H 1212"/>
+    <path d="M 68 610 H 30 V 572"/>
+  </g>
+
+  <!-- centered layout (GitHub social preview) -->
+  <g transform="translate(564,86)">
+    <rect width="152" height="152" fill="#000000" stroke="#ffffff" stroke-opacity="0.3" stroke-width="2"/>
+    <rect x="49" y="39" width="13" height="74" rx="5" fill="#ffffff"/>
+    <rect x="49" y="39" width="60" height="13" rx="5" fill="#ffffff"/>
+    <rect x="49" y="70" width="43" height="13" rx="5" fill="#ffffff"/>
+    <circle cx="105" cy="76.5" r="4.5" fill="#ffffff"/>
+  </g>
+
+  <text x="640" y="400" text-anchor="middle" fill="#ffffff" font-size="130" font-weight="800" letter-spacing="16">FABY</text>
+  <line x1="420" y1="432" x2="860" y2="432" stroke="#ffffff" stroke-opacity="0.35" stroke-width="2"/>
+  <text x="640" y="482" text-anchor="middle" fill="#ffffff" font-size="25" font-weight="600" letter-spacing="7">THE AI-NATIVE PROGRAMMING LANGUAGE</text>
+  <text x="640" y="522" text-anchor="middle" fill="#ffffff" fill-opacity="0.55" font-size="19" letter-spacing="4">DESIGNED BY CLAUDE FABLE-5 &#183; BUILT FOR EVERYTHING</text>
+  <text x="640" y="576" text-anchor="middle" fill="#ffffff" fill-opacity="0.45" font-size="19" letter-spacing="6" font-family="'SF Mono', Menlo, Consolas, monospace">$ faby run tomorrow.fy</text>
+</svg>

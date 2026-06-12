@@ -1,0 +1,63 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Faby",
+  "scopeName": "source.faby",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#intent" },
+    { "include": "#flow-def" },
+    { "include": "#keywords" },
+    { "include": "#contracts" },
+    { "include": "#types" },
+    { "include": "#numbers" },
+    { "include": "#operators" }
+  ],
+  "repository": {
+    "comments": {
+      "match": "--.*$",
+      "name": "comment.line.double-dash.faby"
+    },
+    "strings": {
+      "name": "string.quoted.double.faby",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        { "match": "\\\\.", "name": "constant.character.escape.faby" },
+        { "begin": "\\{", "end": "\\}", "name": "meta.interpolation.faby",
+          "patterns": [{ "include": "$self" }] }
+      ]
+    },
+    "intent": {
+      "match": "\\b(intent)\\b",
+      "name": "keyword.other.intent.faby"
+    },
+    "flow-def": {
+      "match": "\\b(flow)\\s+([a-zA-Z_][A-Za-z0-9_]*)",
+      "captures": {
+        "1": { "name": "keyword.declaration.flow.faby" },
+        "2": { "name": "entity.name.function.faby" }
+      }
+    },
+    "keywords": {
+      "match": "\\b(flow|let|mut|type|match|if|else|for|in|spawn|await|use|pub|where|and|or|not|test)\\b",
+      "name": "keyword.control.faby"
+    },
+    "contracts": {
+      "match": "\\b(expect|ensure|retry|skip|fail|default|result|old)\\b",
+      "name": "support.function.contract.faby"
+    },
+    "types": {
+      "match": "\\b([A-Z][A-Za-z0-9_]*)\\b",
+      "name": "entity.name.type.faby"
+    },
+    "numbers": {
+      "match": "\\b\\d+(\\.\\d+)?\\b",
+      "name": "constant.numeric.faby"
+    },
+    "operators": {
+      "match": "(\\|>|->|\\?|\\+|-|\\*|/|%|==|!=|<=|>=|<|>|=)",
+      "name": "keyword.operator.faby"
+    }
+  }
+}

@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="38%" r="80%">
+      <stop offset="0%" stop-color="#161616"/><stop offset="55%" stop-color="#080808"/><stop offset="100%" stop-color="#000000"/>
+    </radialGradient>
+    <pattern id="grid" width="64" height="64" patternUnits="userSpaceOnUse">
+      <path d="M 64 0 L 0 0 0 64" fill="none" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+    </pattern>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.10"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#glow)"/>
+  <rect width="1920" height="1080" fill="url(#grid)"/>
+  <rect x="40" y="40" width="1840" height="1000" fill="none" stroke="#ffffff" stroke-opacity="0.12" stroke-width="2"/>
+  <g stroke="#ffffff" stroke-opacity="0.6" stroke-width="3" stroke-linecap="round">
+    <path d="M 40 88 V 40 H 88"/><path d="M 1832 40 H 1880 V 88"/>
+    <path d="M 1880 992 V 1040 H 1832"/><path d="M 88 1040 H 40 V 992"/>
+  </g>
+
+  <text x="96" y="120" fill="#ffffff" fill-opacity="0.55" font-size="26" letter-spacing="8" font-weight="500">FABY // AI-NATIVE LANGUAGE</text>
+  <rect x="1556" y="92" width="268" height="40" rx="8" fill="#ffffff"/>
+  <text x="1690" y="120" text-anchor="middle" fill="#000" font-size="22" letter-spacing="2" font-weight="800">LIVE IN PRODUCTION</text>
+  <line x1="96" y1="150" x2="1824" y2="150" stroke="url(#fade)" stroke-width="2"/>
+
+  <text x="92" y="316" fill="#ffffff" font-size="132" font-weight="800" letter-spacing="-2">A real app,</text>
+  <text x="92" y="452" fill="#ffffff" font-size="132" font-weight="800" letter-spacing="-2">running on Faby.</text>
+  <text x="96" y="526" fill="#ffffff" fill-opacity="0.6" font-size="29" letter-spacing="3">THE FABY GUESTBOOK &#183; PAGE + BACKEND + PERSISTENCE, ALL IN FABY &#183; faby.codes/guestbook</text>
+
+  <g font-family="'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace">
+    <rect x="96" y="582" width="900" height="380" rx="14" fill="#0a0a0a" stroke="#ffffff" stroke-opacity="0.18"/>
+    <line x1="96" y1="626" x2="996" y2="626" stroke="#ffffff" stroke-opacity="0.12"/>
+    <text x="976" y="614" text-anchor="end" font-size="20" fill="#ffffff" fill-opacity="0.35">guestbook.fy</text>
+    <text x="128" y="676" font-size="25" fill="#ffffff"><tspan fill="#ffffff" font-weight="700">use</tspan> http</text>
+    <text x="128" y="712" font-size="25" fill="#ffffff"><tspan fill="#ffffff" font-weight="700">use</tspan> store</text>
+    <text x="128" y="772" font-size="25" fill="#ffffff"><tspan fill="#ffffff" font-weight="700">flow</tspan> sign(req)</text>
+    <text x="160" y="808" font-size="24" fill="#ffffff" fill-opacity="0.9">let entry = {name: req.body.name, at: now()}</text>
+    <text x="160" y="844" font-size="24" fill="#ffffff" fill-opacity="0.9">store.save("guestbook.json", push(all(), entry))</text>
+    <text x="160" y="880" font-size="24" fill="#ffffff" fill-opacity="0.9">http.redirect("/guestbook")</text>
+    <text x="128" y="932" font-size="25" fill="#ffffff"><tspan fill="#ffffff" font-weight="700">flow</tspan> main</text>
+  </g>
+
+  <g font-family="'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace">
+    <rect x="1020" y="582" width="804" height="380" rx="14" fill="#0a0a0a" stroke="#ffffff" stroke-opacity="0.18"/>
+    <line x1="1020" y1="626" x2="1824" y2="626" stroke="#ffffff" stroke-opacity="0.12"/>
+    <text x="1804" y="614" text-anchor="end" font-size="20" fill="#ffffff" fill-opacity="0.35">production</text>
+    <text x="1052" y="680" font-size="23" fill="#ffffff" fill-opacity="0.55"># systemd service, behind nginx</text>
+    <text x="1052" y="724" font-size="24" fill="#ffffff" fill-opacity="0.5">$</text>
+    <text x="1076" y="724" font-size="24" fill="#ffffff">faby run guestbook.fy</text>
+    <text x="1052" y="762" font-size="23" fill="#ffffff" fill-opacity="0.55">faby http &#183; listening on :8080</text>
+    <text x="1052" y="824" font-size="25" fill="#ffffff" font-weight="700">https://faby.codes/guestbook</text>
+    <text x="1052" y="864" font-size="23" fill="#ffffff" fill-opacity="0.6">&#10003; live &#183; sign it yourself</text>
+    <text x="1052" y="922" font-size="23" fill="#ffffff" fill-opacity="0.45">no framework &#183; one .fy file</text>
+  </g>
+
+  <text x="96" y="1014" fill="#ffffff" fill-opacity="0.85" font-size="30" font-family="'SF Mono', Menlo, monospace" letter-spacing="1">$ npm i -g @fabycode/cli</text>
+  <text x="1824" y="1014" text-anchor="end" fill="#ffffff" fill-opacity="0.5" font-size="26" letter-spacing="3">FABY.CODES</text>
+</svg>

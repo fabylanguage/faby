@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Faby Benchmark — How many tokens does a language really cost?</title>
+<meta name="description" content="A reproducible, open benchmark: the same programs in Python, TypeScript, Rust and Faby, counted with one identical tokenizer. Faby uses ~20% fewer tokens on average — up to 33% on data-transformation code. See the method, see the code, count it yourself.">
+<meta property="og:title" content="Faby Benchmark — measured, reproducible, honest">
+<meta property="og:description" content="Same programs, four languages, one tokenizer. Faby: ~20% fewer tokens on average, up to 33%. Full method + source code on the page.">
+<meta property="og:image" content="assets/banners/png/faby-banner-og-1200x630.png">
+<link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#030303;--bg-2:#0a0a0a;--bg-3:#101010;
+  --border:#1d1d1d;--border-2:#2c2c2c;
+  --text:#f0f0f0;--muted:#8f8f8f;--dim:#5a5a5a;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:90px;overflow-x:clip}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.65;-webkit-font-smoothing:antialiased}
+::selection{background:#fff;color:#000}
+
+nav.top{
+  position:fixed;top:0;left:0;right:0;z-index:100;height:64px;
+  background:rgba(3,3,3,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;padding:0 28px;
+}
+.logo{display:flex;align-items:center;gap:11px;text-decoration:none;color:var(--text)}
+.logo img{width:30px;height:30px}
+.logo span{font-weight:800;font-size:17px;letter-spacing:4px}
+.logo small{font-family:var(--mono);font-size:10px;color:var(--dim);border:1px solid var(--border-2);border-radius:4px;padding:2px 6px}
+nav.top .links{display:flex;gap:22px;align-items:center}
+nav.top a.lnk{color:var(--muted);text-decoration:none;font-size:13px;font-family:var(--mono);letter-spacing:1px;transition:color .2s}
+nav.top a.lnk:hover{color:#fff}
+
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+header{padding:130px 0 50px;text-align:center;position:relative}
+.crumb{font-family:var(--mono);font-size:12px;color:var(--dim);letter-spacing:3px;text-transform:uppercase;margin-bottom:20px}
+h1{font-size:clamp(36px,6vw,68px);font-weight:900;letter-spacing:-2px;line-height:1.02;margin-bottom:22px}
+.bignum{font-size:clamp(96px,20vw,200px);font-weight:900;letter-spacing:-4px;line-height:.92;display:block;margin:6px 0 18px}
+.bignum .pct{font-size:.46em;font-weight:800;vertical-align:.32em;margin-left:.02em;letter-spacing:0}
+header p.sub{font-size:18px;color:var(--muted);max-width:640px;margin:0 auto 14px}
+header p.sub b{color:#fff;font-weight:600}
+.pills{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:26px}
+.pill{font-family:var(--mono);font-size:11.5px;color:var(--muted);border:1px solid var(--border-2);border-radius:100px;padding:6px 15px;letter-spacing:1px}
+
+section{padding:70px 0;border-top:1px solid var(--border)}
+.sec-label{font-family:var(--mono);font-size:12px;letter-spacing:4px;color:var(--dim);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:14px}
+.sec-label::before{content:'';width:30px;height:1px;background:var(--border-2)}
+h2{font-size:clamp(28px,4vw,40px);font-weight:800;letter-spacing:-1px;margin-bottom:16px}
+.sec-intro{color:var(--muted);font-size:16px;max-width:680px;margin-bottom:10px}
+
+/* task tabs */
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:34px 0 30px}
+.tab{
+  font-family:var(--mono);font-size:12.5px;color:var(--muted);background:var(--bg-2);
+  border:1px solid var(--border);border-radius:9px;padding:10px 16px;cursor:pointer;transition:all .2s;
+}
+.tab:hover{color:#fff;border-color:var(--border-2)}
+.tab.active{background:#fff;color:#000;border-color:#fff;font-weight:700}
+
+/* bar chart */
+.chart{display:flex;flex-direction:column;gap:16px;margin-bottom:14px}
+.bar-row{display:grid;grid-template-columns:120px 1fr;gap:16px;align-items:center}
+.bar-lang{font-family:var(--mono);font-size:13px;color:var(--muted);text-align:right}
+.bar-lang.faby{color:#fff;font-weight:700}
+.bar-track{position:relative;height:38px;background:var(--bg-2);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.bar-fill{
+  position:absolute;inset:0;width:0;background:#2a2a2a;border-radius:7px;
+  transition:width 1s cubic-bezier(.2,.7,.2,1);display:flex;align-items:center;justify-content:flex-end;
+}
+.bar-fill.faby{background:#fff}
+.bar-val{font-family:var(--mono);font-size:13px;font-weight:700;padding:0 12px;white-space:nowrap}
+.bar-fill:not(.faby) .bar-val{color:#cfcfcf}
+.bar-fill.faby .bar-val{color:#000}
+.task-note{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:6px;letter-spacing:.3px}
+.task-note b{color:#fff}
+
+/* code compare */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}
+.code-col{background:var(--bg-2);border:1px solid var(--border-2);border-radius:12px;overflow:hidden}
+.code-col.win{border-color:#fff;box-shadow:0 0 32px rgba(255,255,255,.06)}
+.code-head{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--border);background:var(--bg-3);font-family:var(--mono);font-size:12px}
+.code-head .lang{color:#fff;font-weight:700;letter-spacing:1px}
+.code-head .cnt{color:var(--muted)}
+.code-head select{background:var(--bg);color:#fff;border:1px solid var(--border-2);border-radius:6px;font-family:var(--mono);font-size:12px;padding:4px 8px;outline:none;cursor:pointer}
+pre.code{padding:18px;font-family:var(--mono);font-size:12.5px;line-height:1.7;overflow-x:auto;white-space:pre;color:var(--text);min-height:230px}
+.tk-kw{color:#fff;font-weight:700}.tk-typ{color:#d9d9d9;font-style:italic}.tk-str{color:#a8a8a8}.tk-cmt{color:#525252;font-style:italic}.tk-num{color:#e8e8e8}.tk-op{color:#777}
+
+table{border-collapse:collapse;width:100%;margin:24px 0 8px;font-size:14px}
+th{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);text-align:right;padding:12px 14px;border-bottom:1px solid var(--border-2);font-weight:500}
+th:first-child{text-align:left}
+td{padding:12px 14px;border-bottom:1px solid var(--border);color:var(--muted);text-align:right;font-family:var(--mono);font-size:13px}
+td:first-child{text-align:left;color:#fff}
+td.faby{color:#fff;font-weight:700}
+tr:hover td{background:var(--bg-2)}
+tfoot td{color:#fff;font-weight:700;border-top:1px solid var(--border-2)}
+
+.method{background:var(--bg-2);border:1px solid var(--border);border-radius:14px;padding:30px 32px;margin-top:8px}
+.method h3{font-size:17px;font-weight:700;margin:20px 0 8px}.method h3:first-child{margin-top:0}
+.method p{color:var(--muted);font-size:15px;margin-bottom:12px}
+.method code{font-family:var(--mono);font-size:12.5px;color:#e8e8e8;background:var(--bg-3);border:1px solid var(--border);border-radius:6px;padding:2px 7px}
+.method pre{font-family:var(--mono);font-size:12.5px;background:var(--bg-3);border:1px solid var(--border);border-radius:8px;padding:14px 16px;overflow-x:auto;color:#fff;margin:6px 0 14px}
+.method .honest{border-left:3px solid #fff;padding:14px 18px;background:var(--bg-3);border-radius:8px;margin-top:8px}
+.method .honest b{color:#fff;display:block;font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;font-family:var(--mono)}
+
+.cta{text-align:center;padding:80px 0}
+.btn{display:inline-block;text-decoration:none;font-weight:700;font-size:14px;padding:13px 26px;border-radius:9px;transition:all .25s;margin:6px}
+.btn-solid{background:#fff;color:#000;border:1px solid #fff}
+.btn-solid:hover{box-shadow:0 0 30px rgba(255,255,255,.3)}
+.btn-ghost{background:transparent;color:#fff;border:1px solid var(--border-2)}
+.btn-ghost:hover{border-color:#fff}
+
+footer{border-top:1px solid var(--border);padding:40px 0;text-align:center;font-family:var(--mono);font-size:12px;color:var(--dim);letter-spacing:1px}
+footer a{color:var(--muted);text-decoration:none}footer a:hover{color:#fff}
+
+@media(max-width:760px){
+  nav.top .links a.lnk:not(.keep){display:none}
+  .compare{grid-template-columns:1fr}
+  .bar-row{grid-template-columns:84px 1fr;gap:10px}
+  header{padding:110px 0 40px}
+}
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <a class="logo" href="/"><img src="assets/icon.svg" alt="Faby logo"><span>FABY</span><small>BENCHMARK</small></a>
+  <div class="links">
+    <a class="lnk" href="/docs">DOCS</a>
+    <a class="lnk" href="/playground">PLAYGROUND</a>
+    <a class="lnk keep" href="/">← FABY-LANG.DEV</a>
+  </div>
+</nav>
+
+<header>
+  <div class="wrap">
+    <div class="crumb">The Token Benchmark</div>
+    <h1>How many tokens<br>does a language cost?</h1>
+    <span class="bignum">−20<span class="pct">%</span></span>
+    <p class="sub">Across five everyday programs, <b>Faby uses ~20% fewer tokens on average</b> than the mean of Python, TypeScript and Rust — and <b>up to 33%</b> on data-transformation code.</p>
+    <p class="sub" style="font-size:15px">Same programs. One identical tokenizer. Every number below is reproducible — and we show the one task where Faby <i>doesn't</i> win.</p>
+    <div class="pills">
+      <span class="pill">5 TASKS</span><span class="pill">4 LANGUAGES</span><span class="pill">1 OPEN TOKENIZER</span><span class="pill">FULLY REPRODUCIBLE</span>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="sec-label">Task by task</div>
+    <h2>Pick a program. Count the tokens.</h2>
+    <p class="sec-intro">Each task is implemented idiomatically in all four languages — no strawmen, no golfing. Switch tasks and compare the real code side by side.</p>
+
+    <div class="tabs" id="tabs"></div>
+
+    <div class="chart" id="chart"></div>
+    <div class="task-note" id="taskNote"></div>
+
+    <div class="compare">
+      <div class="code-col win">
+        <div class="code-head"><span class="lang">FABY</span><span class="cnt" id="fabyCnt"></span></div>
+        <pre class="code" id="fabyCode"></pre>
+      </div>
+      <div class="code-col">
+        <div class="code-head">
+          <select id="cmpLang"><option value="python">Python</option><option value="typescript">TypeScript</option><option value="rust">Rust</option></select>
+          <span class="cnt" id="cmpCnt"></span>
+        </div>
+        <pre class="code" id="cmpCode"></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-label">All results</div>
+    <h2>The full table.</h2>
+    <table id="resTable">
+      <thead><tr><th>Task</th><th>Python</th><th>TypeScript</th><th>Rust</th><th>Faby</th><th>vs avg</th></tr></thead>
+      <tbody id="resBody"></tbody>
+      <tfoot id="resFoot"></tfoot>
+    </table>
+    <p class="task-note">Tokens per program. “vs avg” = Faby vs the mean of the other three. Negative = fewer tokens.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-label">Methodology</div>
+    <h2>Open, fair, reproducible.</h2>
+    <div class="method">
+      <h3>The tokenizer</h3>
+      <p>One identical function counts tokens for <em>every</em> language: each word (identifier, keyword, number) is one token, and every other non-whitespace character (operator, bracket, punctuation) is one token. Applied uniformly, it rewards exactly what Faby optimizes for — fewer symbols per idea.</p>
+      <pre>const tokens = code =&gt; (code.match(/\w+|[^\s\w]/g) || []).length</pre>
+      <h3>The rules</h3>
+      <p>Programs are written idiomatically in each language — the way a competent developer (or a good model) would actually write them. No artificial verbosity in the others, no code-golf in Faby. Comments excluded. Each task solves the identical problem with identical output.</p>
+      <h3>Reproduce it yourself</h3>
+      <p>Every program on this page is shown in full above. Paste any two into the tokenizer and compare. Faby programs also run live in the <a href="/playground" style="color:#fff">playground</a>.</p>
+      <div class="honest">
+        <b>What this is not</b>
+        Token counts are a proxy, not a verdict — they don't measure runtime speed, type safety, or ecosystem. This counts lexical tokens, not a specific model's BPE vocabulary (which varies per model). And note FizzBuzz: Faby's exhaustive <code>match</code> is slightly <i>longer</i> there. We show it anyway — a benchmark you can only trust if it includes the cases you lose.
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="cta wrap">
+  <h2 style="margin-bottom:14px">Fewer tokens. Same idea.</h2>
+  <p style="color:var(--muted);max-width:520px;margin:0 auto 26px">That's the whole point of an AI-native language — and you can run every Faby program here in your browser.</p>
+  <a class="btn btn-solid" href="/playground">▶ Try it in the Playground</a>
+  <a class="btn btn-ghost" href="/docs">Read the Docs</a>
+</div>
+
+<footer>
+  <div class="wrap">FABY · THE TOKEN BENCHMARK · <a href="/">faby.codes</a> · <a href="https://x.com/fabylanguage" target="_blank" rel="noopener">@fabylanguage</a></div>
+</footer>
+
+<script>
+const DATA = {
+fizzbuzz: {label:"FizzBuzz", reduction:-4, note:"The honest loss: Faby's exhaustive match with guards costs a touch more than a plain loop here.",
+  python:`for i in range(1, 21):
+    if i % 15 == 0:
+        print("FizzBuzz")
+    elif i % 3 == 0:
+        print("Fizz")
+    elif i % 5 == 0:
+        print("Buzz")
+    else:
+        print(i)`,
+  typescript:`for (let i = 1; i <= 20; i++) {
+  if (i % 15 === 0) console.log("FizzBuzz");
+  else if (i % 3 === 0) console.log("Fizz");
+  else if (i % 5 === 0) console.log("Buzz");
+  else console.log(i);
+}`,
+  rust:`fn main() {
+    for i in 1..=20 {
+        if i % 15 == 0 {
+            println!("FizzBuzz");
+        } else if i % 3 == 0 {
+            println!("Fizz");
+        } else if i % 5 == 0 {
+            println!("Buzz");
+        } else {
+            println!("{}", i);
+        }
+    }
+}`,
+  faby:`flow fizzbuzz(n: Int) -> Text
+  match n
+    _ if n % 15 == 0 -> "FizzBuzz"
+    _ if n % 3 == 0  -> "Fizz"
+    _ if n % 5 == 0  -> "Buzz"
+    _                -> str(n)
+
+flow main
+  range(1, 21) |> map(fizzbuzz) |> each(print)`},
+
+discount: {label:"Discount prices", reduction:-25, note:"Pipelines + match collapse the boilerplate the others spend on loops and types.",
+  python:`def discount(prices):
+    result = []
+    for p in prices:
+        if p > 50:
+            result.append(p * 0.9)
+        else:
+            result.append(p)
+    return result
+
+print(discount([20, 60, 99, 45, 120]))`,
+  typescript:`function discount(prices: number[]): number[] {
+  return prices.map((p) => (p > 50 ? p * 0.9 : p));
+}
+
+console.log(discount([20, 60, 99, 45, 120]));`,
+  rust:`fn discount(prices: &[f64]) -> Vec<f64> {
+    prices.iter().map(|&p| if p > 50.0 { p * 0.9 } else { p }).collect()
+}
+
+fn main() {
+    println!("{:?}", discount(&[20.0, 60.0, 99.0, 45.0, 120.0]));
+}`,
+  faby:`flow discount(p: Float) -> Float
+  match p
+    _ if p > 50 -> p * 0.9
+    _           -> p
+
+flow main
+  [20, 60, 99, 45, 120] |> map(discount) |> each(print)`},
+
+evens: {label:"Sum of evens", reduction:-28, note:"A pipeline expresses the whole computation; loops and accumulators disappear.",
+  python:`total = 0
+for n in range(1, 101):
+    if n % 2 == 0:
+        total += n
+print(total)`,
+  typescript:`let total = 0;
+for (let n = 1; n <= 100; n++) {
+  if (n % 2 === 0) total += n;
+}
+console.log(total);`,
+  rust:`fn main() {
+    let total: i32 = (1..=100).filter(|n| n % 2 == 0).sum();
+    println!("{}", total);
+}`,
+  faby:`flow main
+  let total = range(1, 101)
+    |> filter(_ % 2 == 0)
+    |> sum
+  print(total)`},
+
+shout: {label:"Shout words", reduction:-33, note:"Biggest win: a one-line flow plus a pipeline against pages of type annotations and ceremony.",
+  python:`def shout(words):
+    return [w.upper() + "!" for w in words]
+
+for s in shout(["faby", "rust", "python"]):
+    print(s)`,
+  typescript:`function shout(words: string[]): string[] {
+  return words.map((w) => w.toUpperCase() + "!");
+}
+
+for (const s of shout(["faby", "rust", "python"])) {
+  console.log(s);
+}`,
+  rust:`fn shout(words: &[&str]) -> Vec<String> {
+    words.iter().map(|w| format!("{}!", w.to_uppercase())).collect()
+}
+
+fn main() {
+    for s in shout(&["faby", "rust", "python"]) {
+        println!("{}", s);
+    }
+}`,
+  faby:`flow shout(t: Text) -> Text
+  upper(t) + "!"
+
+flow main
+  ["faby", "rust", "python"] |> map(shout) |> each(print)`},
+
+user: {label:"Typed record", reduction:-20, note:"Semantic types (Email, Id) carry meaning with less syntax than struct + impl + annotations.",
+  python:`from dataclasses import dataclass
+
+@dataclass
+class User:
+    id: int
+    name: str
+    email: str
+
+def greet(u: User) -> str:
+    return f"Hi {u.name} <{u.email}>"
+
+print(greet(User(1, "Ada", "ada@faby.dev")))`,
+  typescript:`interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
+function greet(u: User): string {
+  return \`Hi \${u.name} <\${u.email}>\`;
+}
+
+console.log(greet({ id: 1, name: "Ada", email: "ada@faby.dev" }));`,
+  rust:`struct User {
+    id: u32,
+    name: String,
+    email: String,
+}
+
+fn greet(u: &User) -> String {
+    format!("Hi {} <{}>", u.name, u.email)
+}
+
+fn main() {
+    let u = User { id: 1, name: "Ada".into(), email: "ada@faby.dev".into() };
+    println!("{}", greet(&u));
+}`,
+  faby:`type User
+  id:    Id
+  name:  Text
+  email: Email
+
+flow greet(u: User) -> Text
+  "Hi {u.name} <{u.email}>"
+
+flow main
+  print(greet(User(id: 1, name: "Ada", email: "ada@faby.dev")))`}
+};
+
+const LANG_LABEL = {python:"Python", typescript:"TypeScript", rust:"Rust", faby:"Faby"};
+function countTokens(code){ return (code.match(/\w+|[^\s\w]/g)||[]).length; }
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function hlFaby(src){
+  const re=/(--[^\n]*)|("(?:[^"\\]|\\.)*")|\b(flow|let|mut|type|match|if|else|for|in|where|and|or|not|default|true|false)\b|\b([A-Z][A-Za-z0-9_]*)\b|\b(\d+(?:\.\d+)?)\b|(\|>|->)/g;
+  let out='',last=0,m;
+  while((m=re.exec(src))){out+=esc(src.slice(last,m.index));const t=m[0];
+    if(m[1])out+='<span class="tk-cmt">'+esc(t)+'</span>';
+    else if(m[2])out+='<span class="tk-str">'+esc(t)+'</span>';
+    else if(m[3])out+='<span class="tk-kw">'+esc(t)+'</span>';
+    else if(m[4])out+='<span class="tk-typ">'+esc(t)+'</span>';
+    else if(m[5])out+='<span class="tk-num">'+esc(t)+'</span>';
+    else out+='<span class="tk-op">'+esc(t)+'</span>';
+    last=m.index+t.length;}
+  return out+esc(src.slice(last));
+}
+
+const tasks=Object.keys(DATA);
+let active=tasks[0];
+
+// build tabs
+const tabsEl=document.getElementById('tabs');
+tasks.forEach(t=>{
+  const b=document.createElement('button');
+  b.className='tab'+(t===active?' active':'');
+  b.textContent=DATA[t].label;
+  b.onclick=()=>{active=t;document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');render();};
+  tabsEl.appendChild(b);
+});
+
+const cmpSel=document.getElementById('cmpLang');
+cmpSel.onchange=render;
+
+function render(){
+  const d=DATA[active];
+  const counts={python:countTokens(d.python),typescript:countTokens(d.typescript),rust:countTokens(d.rust),faby:countTokens(d.faby)};
+  const max=Math.max(...Object.values(counts));
+  // chart
+  const order=['python','typescript','rust','faby'];
+  document.getElementById('chart').innerHTML=order.map(l=>{
+    const isF=l==='faby';
+    return `<div class="bar-row"><div class="bar-lang${isF?' faby':''}">${LANG_LABEL[l]}</div>
+      <div class="bar-track"><div class="bar-fill${isF?' faby':''}" data-w="${(counts[l]/max*100).toFixed(1)}">
+      <span class="bar-val">${counts[l]} tokens</span></div></div></div>`;
+  }).join('');
+  // animate bars
+  requestAnimationFrame(()=>{document.querySelectorAll('.bar-fill').forEach(f=>{f.style.width=f.dataset.w+'%';});});
+  // note
+  const r=d.reduction;
+  document.getElementById('taskNote').innerHTML = r<0
+    ? `Faby: <b>${Math.abs(r)}% fewer tokens</b> than the average of Python, TS &amp; Rust. ${d.note}`
+    : `Faby uses <b>${r}% more tokens</b> here. ${d.note}`;
+  // code
+  document.getElementById('fabyCode').innerHTML=hlFaby(d.faby);
+  document.getElementById('fabyCnt').textContent=counts.faby+' tokens';
+  const cl=cmpSel.value;
+  document.getElementById('cmpCode').textContent=d[cl];
+  document.getElementById('cmpCnt').textContent=counts[cl]+' tokens';
+}
+
+// results table
+function buildTable(){
+  let body='';let s={python:0,typescript:0,rust:0,faby:0};
+  tasks.forEach(t=>{
+    const d=DATA[t];
+    const c={python:countTokens(d.python),typescript:countTokens(d.typescript),rust:countTokens(d.rust),faby:countTokens(d.faby)};
+    s.python+=c.python;s.typescript+=c.typescript;s.rust+=c.rust;s.faby+=c.faby;
+    const r=d.reduction;
+    body+=`<tr><td>${d.label}</td><td>${c.python}</td><td>${c.typescript}</td><td>${c.rust}</td><td class="faby">${c.faby}</td><td>${r<0?'−'+Math.abs(r)+'%':'+'+r+'%'}</td></tr>`;
+  });
+  document.getElementById('resBody').innerHTML=body;
+  const avgOther=(s.python+s.typescript+s.rust)/3;
+  const overall=Math.round((1-s.faby/avgOther)*100);
+  document.getElementById('resFoot').innerHTML=`<tr><td>TOTAL</td><td>${s.python}</td><td>${s.typescript}</td><td>${s.rust}</td><td class="faby">${s.faby}</td><td>−${overall}%</td></tr>`;
+}
+
+buildTable();
+render();
+</script>
+</body>
+</html>

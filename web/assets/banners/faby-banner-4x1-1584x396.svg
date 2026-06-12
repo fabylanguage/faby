@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1584" height="396" viewBox="0 0 1584 396" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif">
+  <defs>
+    <radialGradient id="glow" cx="30%" cy="45%" r="90%">
+      <stop offset="0%" stop-color="#151515"/>
+      <stop offset="55%" stop-color="#070707"/>
+      <stop offset="100%" stop-color="#000000"/>
+    </radialGradient>
+    <pattern id="grid" width="44" height="44" patternUnits="userSpaceOnUse">
+      <path d="M 44 0 L 0 0 0 44" fill="none" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1584" height="396" fill="url(#glow)"/>
+  <rect width="1584" height="396" fill="url(#grid)"/>
+
+  <g opacity="0.05">
+    <rect x="1180" y="-60" width="56" height="520" rx="20" fill="#ffffff"/>
+    <rect x="1180" y="-60" width="330" height="56" rx="20" fill="#ffffff"/>
+    <rect x="1180" y="170" width="240" height="56" rx="20" fill="#ffffff"/>
+  </g>
+
+  <rect x="24" y="24" width="1536" height="348" fill="none" stroke="#ffffff" stroke-opacity="0.12" stroke-width="2"/>
+  <g stroke="#ffffff" stroke-opacity="0.6" stroke-width="3" stroke-linecap="round">
+    <path d="M 24 56 V 24 H 56"/>
+    <path d="M 1528 24 H 1560 V 56"/>
+    <path d="M 1560 340 V 372 H 1528"/>
+    <path d="M 56 372 H 24 V 340"/>
+  </g>
+
+  <text x="60" y="172" fill="#ffffff" font-size="120" font-weight="800" letter-spacing="14">FABY</text>
+  <line x1="64" y1="204" x2="496" y2="204" stroke="#ffffff" stroke-opacity="0.35" stroke-width="2"/>
+  <text x="64" y="252" fill="#ffffff" font-size="24" font-weight="600" letter-spacing="7">THE AI-NATIVE PROGRAMMING LANGUAGE</text>
+  <text x="64" y="290" fill="#ffffff" fill-opacity="0.55" font-size="18" letter-spacing="3.5">DESIGNED BY CLAUDE FABLE-5 &#183; OPTIMIZED FOR AI &#183; BUILT FOR EVERYTHING</text>
+
+  <g font-family="'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace">
+    <rect x="64" y="312" width="430" height="48" rx="10" fill="#0a0a0a" stroke="#ffffff" stroke-opacity="0.18"/>
+    <text x="86" y="343" font-size="20" fill="#ffffff" fill-opacity="0.5">$</text>
+    <text x="106" y="343" font-size="20" fill="#ffffff">faby run tomorrow.fy &#9608;</text>
+  </g>
+
+  <text x="1520" y="76" text-anchor="end" fill="#ffffff" fill-opacity="0.55" font-size="18" letter-spacing="5">V0.1 GENESIS</text>
+  <g transform="translate(1424,260)">
+    <rect width="96" height="96" fill="#000000" stroke="#ffffff" stroke-opacity="0.3" stroke-width="2"/>
+    <rect x="30" y="24" width="9" height="50" rx="3.5" fill="#ffffff"/>
+    <rect x="30" y="24" width="40" height="9" rx="3.5" fill="#ffffff"/>
+    <rect x="30" y="45" width="29" height="9" rx="3.5" fill="#ffffff"/>
+    <circle cx="69" cy="49.5" r="3.5" fill="#ffffff"/>
+  </g>
+</svg>

@@ -1,0 +1,51 @@
+{
+  "name": "faby",
+  "displayName": "Faby",
+  "description": "Syntax highlighting for Faby — the AI-native programming language (.fy).",
+  "version": "0.1.0",
+  "publisher": "fabycodes",
+  "license": "MIT",
+  "homepage": "https://faby.codes",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fabycode/faby"
+  },
+  "engines": {
+    "vscode": "^1.70.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "faby",
+    "fy",
+    "ai-native"
+  ],
+  "icon": "icon.png",
+  "contributes": {
+    "languages": [
+      {
+        "id": "faby",
+        "aliases": [
+          "Faby",
+          "faby"
+        ],
+        "extensions": [
+          ".fy"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "faby",
+        "scopeName": "source.faby",
+        "path": "./syntaxes/faby.tmLanguage.json"
+      }
+    ]
+  },
+  "galleryBanner": {
+    "color": "#0a0a0a",
+    "theme": "dark"
+  }
+}

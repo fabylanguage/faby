@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="35%" r="85%">
+      <stop offset="0%" stop-color="#161616"/>
+      <stop offset="55%" stop-color="#080808"/>
+      <stop offset="100%" stop-color="#000000"/>
+    </radialGradient>
+    <pattern id="grid" width="54" height="54" patternUnits="userSpaceOnUse">
+      <path d="M 54 0 L 0 0 0 54" fill="none" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1080" height="1920" fill="url(#glow)"/>
+  <rect width="1080" height="1920" fill="url(#grid)"/>
+
+  <rect x="40" y="40" width="1000" height="1840" fill="none" stroke="#ffffff" stroke-opacity="0.12" stroke-width="2"/>
+  <g stroke="#ffffff" stroke-opacity="0.6" stroke-width="3" stroke-linecap="round">
+    <path d="M 40 88 V 40 H 88"/>
+    <path d="M 992 40 H 1040 V 88"/>
+    <path d="M 1040 1832 V 1880 H 992"/>
+    <path d="M 88 1880 H 40 V 1832"/>
+  </g>
+
+  <text x="540" y="150" text-anchor="middle" fill="#ffffff" fill-opacity="0.55" font-size="26" letter-spacing="9" font-weight="500">FABY // AI-NATIVE LANGUAGE</text>
+  <line x1="120" y1="186" x2="960" y2="186" stroke="#ffffff" stroke-opacity="0.12" stroke-width="2"/>
+
+  <!-- glyph -->
+  <g transform="translate(366,320)">
+    <rect width="348" height="348" fill="#000000" stroke="#ffffff" stroke-opacity="0.3" stroke-width="3"/>
+    <rect x="112" y="90" width="30" height="168" rx="10" fill="#ffffff"/>
+    <rect x="112" y="90" width="137" height="30" rx="10" fill="#ffffff"/>
+    <rect x="112" y="162" width="97" height="30" rx="10" fill="#ffffff"/>
+    <circle cx="240" cy="177" r="10" fill="#ffffff"/>
+    <rect x="155" y="280" width="30" height="23" rx="7" fill="#ffffff" fill-opacity="0.92"/>
+  </g>
+
+  <text x="540" y="940" text-anchor="middle" fill="#ffffff" font-size="210" font-weight="800" letter-spacing="26">FABY</text>
+  <line x1="220" y1="990" x2="860" y2="990" stroke="#ffffff" stroke-opacity="0.35" stroke-width="3"/>
+  <text x="540" y="1064" text-anchor="middle" fill="#ffffff" font-size="33" font-weight="600" letter-spacing="8">THE AI-NATIVE</text>
+  <text x="540" y="1118" text-anchor="middle" fill="#ffffff" font-size="33" font-weight="600" letter-spacing="8">PROGRAMMING LANGUAGE</text>
+  <text x="540" y="1180" text-anchor="middle" fill="#ffffff" fill-opacity="0.55" font-size="23" letter-spacing="4">DESIGNED BY CLAUDE FABLE-5</text>
+  <text x="540" y="1220" text-anchor="middle" fill="#ffffff" fill-opacity="0.55" font-size="23" letter-spacing="4">BUILT FOR EVERYTHING</text>
+
+  <g font-family="'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace">
+    <rect x="200" y="1300" width="680" height="200" rx="18" fill="#0a0a0a" stroke="#ffffff" stroke-opacity="0.18"/>
+    <circle cx="244" cy="1344" r="8" fill="#ffffff" fill-opacity="0.25"/>
+    <circle cx="272" cy="1344" r="8" fill="#ffffff" fill-opacity="0.25"/>
+    <circle cx="300" cy="1344" r="8" fill="#ffffff" fill-opacity="0.25"/>
+    <text x="240" y="1415" font-size="30" fill="#ffffff" fill-opacity="0.45">flow</text>
+    <text x="318" y="1415" font-size="30" fill="#ffffff">future() -&gt; Now</text>
+    <text x="240" y="1462" font-size="30" fill="#ffffff" fill-opacity="0.5">$</text>
+    <text x="268" y="1462" font-size="30" fill="#ffffff">faby run tomorrow.fy &#9608;</text>
+  </g>
+
+  <text x="540" y="1750" text-anchor="middle" fill="#ffffff" fill-opacity="0.55" font-size="24" letter-spacing="8" font-weight="500">FABY-LANG.DEV &#183; V0.1 GENESIS</text>
+</svg>

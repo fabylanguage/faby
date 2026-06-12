@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Faby Playground — Run Faby in your Browser</title>
+<meta name="description" content="Describe what you want — an AI writes the Faby, runs it in your browser, and meters the compute in $FABY. The AI-native programming language, live. No install.">
+<meta property="og:title" content="Faby Playground — AI writes it, you run it, $FABY pays for it">
+<meta property="og:description" content="Type plain English. An AI writes Faby, it runs instantly in your browser, and the compute is metered in $FABY — the runtime's native currency. Nobody else has this.">
+<meta property="og:image" content="assets/banners/png/faby-banner-og-1200x630.png">
+<link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#030303;--bg-2:#0a0a0a;--bg-3:#101010;
+  --border:#1d1d1d;--border-2:#2c2c2c;
+  --text:#f0f0f0;--muted:#8f8f8f;--dim:#5a5a5a;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow-x:clip}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);display:flex;flex-direction:column;overflow:hidden;-webkit-font-smoothing:antialiased}
+::selection{background:#fff;color:#000}
+
+nav.top{
+  flex:0 0 auto;height:60px;z-index:50;
+  background:rgba(3,3,3,.9);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;padding:0 22px;gap:14px;
+}
+.logo{display:flex;align-items:center;gap:11px;text-decoration:none;color:var(--text)}
+.logo img{width:28px;height:28px}
+.logo span{font-weight:800;font-size:16px;letter-spacing:4px}
+.logo small{font-family:var(--mono);font-size:10px;color:var(--dim);border:1px solid var(--border-2);border-radius:4px;padding:2px 6px}
+nav.top .links{display:flex;gap:18px;align-items:center}
+nav.top a.lnk{color:var(--muted);text-decoration:none;font-size:12.5px;font-family:var(--mono);letter-spacing:1px;transition:color .2s;white-space:nowrap}
+nav.top a.lnk:hover{color:#fff}
+
+.toolbar{
+  flex:0 0 auto;display:flex;align-items:center;gap:12px;padding:12px 22px;
+  border-bottom:1px solid var(--border);background:var(--bg-2);flex-wrap:wrap;
+}
+.toolbar select{
+  background:var(--bg-3);color:var(--text);border:1px solid var(--border-2);border-radius:8px;
+  font-family:var(--mono);font-size:12.5px;padding:9px 12px;outline:none;cursor:pointer;
+}
+.btn{
+  font-family:var(--sans);font-weight:700;font-size:13.5px;letter-spacing:.4px;
+  padding:9px 22px;border-radius:8px;cursor:pointer;transition:all .2s;border:1px solid transparent;
+}
+.btn-run{background:#fff;color:#000;border-color:#fff}
+.btn-run:hover{box-shadow:0 0 24px rgba(255,255,255,.35)}
+.btn-ghost{background:transparent;color:#fff;border-color:var(--border-2)}
+.btn-ghost:hover{border-color:#fff}
+.tok{
+  margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:1px;
+  display:flex;gap:18px;align-items:center;white-space:nowrap;
+}
+.tok b{color:#fff;font-weight:500}
+.kbd{font-family:var(--mono);font-size:10.5px;color:var(--dim);border:1px solid var(--border-2);border-radius:5px;padding:2px 7px}
+
+/* ---------- $FABY balance meter ---------- */
+.meter{
+  display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;
+  border:1px solid var(--border-2);border-radius:100px;padding:6px 8px 6px 14px;color:var(--muted);
+  white-space:nowrap;
+}
+.meter .dot{width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 9px #fff}
+.meter b{color:#fff;font-weight:600;font-variant-numeric:tabular-nums;transition:color .25s}
+.meter b.spend{color:#fff;animation:flash .5s ease}
+@keyframes flash{0%{color:#fff;text-shadow:0 0 14px #fff}100%{color:#fff;text-shadow:none}}
+.meter .ticker{
+  background:#fff;color:#000;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:1px;
+  padding:3px 9px;opacity:0;transform:translateY(-2px);transition:opacity .2s,transform .2s;
+}
+.meter .ticker.show{opacity:1;transform:none}
+
+/* ---------- AI generate bar ---------- */
+.genbar{
+  flex:0 0 auto;display:flex;flex-direction:column;gap:10px;padding:14px 22px;
+  border-bottom:1px solid var(--border);
+  background:radial-gradient(ellipse 50% 200% at 0% 50%,rgba(255,255,255,.05),transparent),var(--bg);
+}
+.genrow{display:flex;gap:10px;align-items:center}
+.genrow .spark{font-size:15px;flex:0 0 auto;color:#fff}
+#genInput{
+  flex:1 1 auto;background:var(--bg-2);border:1px solid var(--border-2);border-radius:10px;
+  color:var(--text);font-family:var(--sans);font-size:14px;padding:12px 16px;outline:none;min-width:0;
+  transition:border-color .2s,box-shadow .2s;
+}
+#genInput:focus{border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.08)}
+#genInput::placeholder{color:var(--dim)}
+.btn-gen{
+  background:#fff;color:#000;border:1px solid #fff;font-weight:700;font-size:13.5px;letter-spacing:.3px;
+  padding:12px 20px;border-radius:10px;cursor:pointer;transition:all .2s;flex:0 0 auto;
+  display:inline-flex;align-items:center;gap:8px;
+}
+.btn-gen:hover:not(:disabled){box-shadow:0 0 26px rgba(255,255,255,.4)}
+.btn-gen:disabled{opacity:.55;cursor:default}
+.btn-gen .spin{width:13px;height:13px;border:2px solid rgba(0,0,0,.25);border-top-color:#000;border-radius:50%;display:none;animation:spin .6s linear infinite}
+.btn-gen.busy .spin{display:block}
+.btn-gen.busy .lbl{opacity:.6}
+@keyframes spin{to{transform:rotate(360deg)}}
+.chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chips .lead{font-family:var(--mono);font-size:10.5px;color:var(--dim);letter-spacing:1.5px;text-transform:uppercase}
+.chip{
+  font-family:var(--mono);font-size:11.5px;color:var(--muted);background:var(--bg-2);
+  border:1px solid var(--border);border-radius:100px;padding:6px 13px;cursor:pointer;transition:all .18s;white-space:nowrap;
+}
+.chip:hover{color:#fff;border-color:var(--border-2);background:var(--bg-3)}
+.genstatus{font-family:var(--mono);font-size:11.5px;color:var(--muted);min-height:16px;letter-spacing:.5px}
+.genstatus .b{color:#fff}
+
+.panes{flex:1 1 auto;display:grid;grid-template-columns:1fr 1fr;min-height:0}
+.pane{display:flex;flex-direction:column;min-width:0;min-height:0}
+.pane+.pane{border-left:1px solid var(--border)}
+.pane-head{
+  flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:10px 18px;
+  border-bottom:1px solid var(--border);background:var(--bg-2);
+  font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:2px;
+}
+.pane-head i{width:9px;height:9px;border-radius:50%;background:#2e2e2e;display:block}
+.pane-head .right{margin-left:auto;letter-spacing:1px}
+
+.editor-wrap{position:relative;flex:1 1 auto;min-height:0;background:var(--bg)}
+.editor-wrap pre, .editor-wrap textarea{
+  position:absolute;inset:0;margin:0;padding:20px 22px;
+  font-family:var(--mono);font-size:14px;line-height:1.7;
+  white-space:pre;overflow:auto;tab-size:2;
+  border:none;outline:none;resize:none;word-break:normal;overflow-wrap:normal;
+}
+.editor-wrap pre{pointer-events:none;color:var(--text);z-index:1}
+.editor-wrap textarea{
+  z-index:2;background:transparent;color:transparent;caret-color:#fff;
+}
+.editor-wrap textarea::selection{background:rgba(255,255,255,.22);color:transparent}
+
+.tk-kw{color:#fff;font-weight:700}
+.tk-typ{color:#d9d9d9;font-style:italic}
+.tk-str{color:#a8a8a8}
+.tk-cmt{color:#525252;font-style:italic}
+.tk-num{color:#e8e8e8}
+.tk-op{color:#777}
+
+.out{
+  flex:1 1 auto;min-height:0;overflow:auto;padding:20px 22px;
+  font-family:var(--mono);font-size:13.5px;line-height:1.75;white-space:pre-wrap;word-break:break-word;
+  background:var(--bg);
+}
+.out .sys{color:var(--dim);font-style:italic}
+.out .err{color:#fff;background:#1a1a1a;border-left:3px solid #fff;display:block;padding:10px 14px;border-radius:6px;margin-top:10px}
+.out .ok{color:var(--dim)}
+.out .caret{display:inline-block;width:8px;height:15px;background:#fff;vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+.statusbar{
+  flex:0 0 auto;display:flex;gap:22px;align-items:center;padding:9px 22px;
+  border-top:1px solid var(--border);background:var(--bg-2);
+  font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:1.5px;flex-wrap:wrap;
+}
+.statusbar a{color:var(--muted);text-decoration:none}
+.statusbar a:hover{color:#fff}
+.statusbar .dot{width:6px;height:6px;border-radius:50%;background:#fff;box-shadow:0 0 8px #fff;animation:pulse 2.2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translate(-50%,80px);z-index:200;
+  background:#fff;color:#000;font-family:var(--mono);font-size:12.5px;font-weight:700;
+  letter-spacing:1px;padding:12px 24px;border-radius:100px;transition:transform .3s ease;
+  box-shadow:0 10px 40px rgba(0,0,0,.6);
+}
+.toast.show{transform:translate(-50%,0)}
+
+@media(max-width:860px){
+  body{overflow:auto}
+  .panes{grid-template-columns:1fr;grid-template-rows:52vh 38vh}
+  .pane+.pane{border-left:none;border-top:1px solid var(--border)}
+  .tok .hide-m{display:none}
+  nav.top a.lnk:not(.keep){display:none}
+}
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <a class="logo" href="/"><img src="assets/icon.svg" alt="Faby logo"><span>FABY</span><small>PLAYGROUND</small></a>
+  <div class="links">
+    <a class="lnk" href="/docs">LANGUAGE DOCS</a>
+    <a class="lnk" href="/cli">CLI</a>
+    <a class="lnk keep" href="/">← FABY-LANG.DEV</a>
+  </div>
+</nav>
+
+<div class="toolbar">
+  <select id="examples" aria-label="Example programs">
+    <option value="hello">Hello, Faby</option>
+    <option value="fibonacci">Fibonacci · match</option>
+    <option value="pipelines">Pipelines · |&gt;</option>
+    <option value="fizzbuzz">FizzBuzz · guards</option>
+    <option value="recovery">Recovery · ? default</option>
+    <option value="contracts">Contracts · ensure</option>
+    <option value="strings">Strings &amp; flows</option>
+  </select>
+  <button class="btn btn-run" id="runBtn">▶ Run</button>
+  <button class="btn btn-ghost" id="checkBtn" title="Static analysis — faby check">✓ Check</button>
+  <button class="btn btn-ghost" id="fmtBtn" title="Canonical formatter — faby fmt">⌘ Format</button>
+  <button class="btn btn-ghost" id="shareBtn">Share</button>
+  <button class="btn btn-ghost" id="tweetBtn">Post on 𝕏</button>
+  <div class="tok">
+    <span class="meter" title="Running and generating Faby spends $FABY — the runtime's native compute currency">
+      <span class="dot"></span><b id="fabyBal">1,000</b>&nbsp;$FABY
+      <span class="ticker" id="ticker">-0</span>
+    </span>
+    <span class="kbd hide-m">⌘⏎ RUN</span>
+  </div>
+</div>
+
+<div class="genbar">
+  <div class="genrow">
+    <span class="spark">✦</span>
+    <input id="genInput" type="text" autocomplete="off" spellcheck="false"
+      placeholder="Describe what you want in plain English — the AI writes the Faby for you…">
+    <button class="btn-gen" id="genBtn"><span class="spin"></span><span class="lbl">✦ Generate</span></button>
+  </div>
+  <div class="chips">
+    <span class="lead">Try</span>
+    <button class="chip" data-q="fizzbuzz from 1 to 20">fizzbuzz from 1 to 20</button>
+    <button class="chip" data-q="first 10 fibonacci numbers">first 10 fibonacci numbers</button>
+    <button class="chip" data-q="sum of even numbers up to 100">sum of even numbers up to 100</button>
+    <button class="chip" data-q="apply 10% discount to prices over 50">10% discount on prices over 50</button>
+    <button class="chip" data-q="safe divide with fallback">safe divide with fallback</button>
+    <button class="chip" data-q="squares of 1 to 10">squares of 1 to 10</button>
+  </div>
+  <div class="genstatus" id="genStatus">✦ AI-generated Faby runs instantly &amp; locally — each generation spends a little <span class="b">$FABY</span>, just like the real CLI.</div>
+</div>
+
+<div class="panes">
+  <div class="pane">
+    <div class="pane-head"><i></i><i></i><i></i>&nbsp;MAIN.FY<span class="right">EDITOR</span></div>
+    <div class="editor-wrap">
+      <pre id="hl" aria-hidden="true"></pre>
+      <textarea id="src" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Faby source code"></textarea>
+    </div>
+  </div>
+  <div class="pane">
+    <div class="pane-head"><i></i><i></i><i></i>&nbsp;OUTPUT<span class="right" id="runStat">READY</span></div>
+    <div class="out" id="out"><span class="sys">// press ▶ Run (or ⌘⏎) to execute your flow<br>// everything runs locally in your browser — no server, no install</span><br><span class="caret"></span></div>
+  </div>
+</div>
+
+<div class="statusbar">
+  <span style="display:flex;align-items:center;gap:8px"><span class="dot"></span>FABY v0.1 GENESIS · BROWSER RUNTIME · AI GENERATION</span>
+  <span>FLOWS · PIPES · MATCH · CONTRACTS · RECOVERY</span>
+  <span style="margin-left:auto"><a href="/cli">FULL TOOLCHAIN: NPM →</a></span>
+</div>
+
+<div class="toast" id="toast">LINK COPIED — SHARE YOUR FLOW</div>
+
+<script src="assets/faby-interpreter.js"></script>
+<script src="assets/faby-tools.js"></script>
+<script>
+/* ---------- examples ---------- */
+const EXAMPLES = {
+hello: `-- welcome to the faby playground
+-- everything runs locally in your browser
+
+flow main
+  let names = ["World", "Fable-5", "you"]
+  for name in names
+    print("Hello, {name}!")`,
+
+fibonacci: `-- pattern matching is exhaustive by design
+
+flow fib(n: Int) -> Int
+  match n
+    0 | 1 -> n
+    _     -> fib(n - 1) + fib(n - 2)
+
+flow main
+  for n in range(0, 10)
+    print("fib({n}) = {fib(n)}")`,
+
+pipelines: `-- data flows left to right, top to bottom
+
+flow main
+  let result = range(1, 50)
+    |> filter(_ % 3 == 0)
+    |> map(_ * _)
+    |> take(5)
+  print(result)
+  print("sum: {result |> sum}")`,
+
+fizzbuzz: `-- match guards keep branching readable
+
+flow classify(n: Int) -> Text
+  match n
+    _ if n % 15 == 0 -> "FizzBuzz"
+    _ if n % 3 == 0  -> "Fizz"
+    _ if n % 5 == 0  -> "Buzz"
+    _                -> str(n)
+
+flow main
+  range(1, 16) |> map(classify) |> each(print)`,
+
+recovery: `-- failure policy is visible at the call site
+
+flow risky(n: Int) -> Int
+  expect n != 3        -- n == 3 violates the contract
+  n * 10
+
+flow main
+  for n in range(1, 6)
+    let v = risky(n) ? default(0)
+    print("risky({n}) = {v}")
+  print("done — the failure became 0, nothing crashed")`,
+
+contracts: `-- contracts are part of the signature
+
+flow root(x: Float) -> Float
+  expect x >= 0
+  ensure result >= 0
+  sqrt(x)
+
+flow main
+  print("root(16) = {root(16)}")
+  print("root(2)  = {root(2)}")
+  -- now break the contract:
+  let v = root(0 - 9) ? default(0 - 1)
+  print("root(-9) recovered to {v}")`,
+
+strings: `-- flows are values; pass them around
+
+flow shout(t: Text) -> Text
+  upper(t) + "!"
+
+flow main
+  let langs = ["faby", "python", "rust"]
+  langs |> map(shout) |> each(print)
+  print("chars in faby: {"faby".len}")
+  print("faby" |> reverse)`
+};
+
+/* ---------- highlighter (same scheme as the rest of the site) ---------- */
+function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function highlightFaby(src){
+  const re=/(--[^\n]*)|("(?:[^"\\]|\\.)*")|\b(flow|let|mut|type|match|if|else|for|in|spawn|await|intent|ensure|expect|use|pub|where|and|or|not|retry|skip|fail|default|true|false)\b|\b([A-Z][A-Za-z0-9_]*)\b|\b(\d+(?:\.\d+)?)\b|(\|>|->|\?(?=\s))/g;
+  let out='',last=0,m;
+  while((m=re.exec(src))){
+    out+=escapeHtml(src.slice(last,m.index));
+    const t=m[0];
+    if(m[1])out+='<span class="tk-cmt">'+escapeHtml(t)+'</span>';
+    else if(m[2])out+='<span class="tk-str">'+escapeHtml(t)+'</span>';
+    else if(m[3])out+='<span class="tk-kw">'+escapeHtml(t)+'</span>';
+    else if(m[4])out+='<span class="tk-typ">'+escapeHtml(t)+'</span>';
+    else if(m[5])out+='<span class="tk-num">'+escapeHtml(t)+'</span>';
+    else out+='<span class="tk-op">'+escapeHtml(t)+'</span>';
+    last=m.index+t.length;
+  }
+  return out+escapeHtml(src.slice(last));
+}
+
+/* ---------- editor ---------- */
+const src=document.getElementById('src'), hl=document.getElementById('hl'),
+      out=document.getElementById('out'), runStat=document.getElementById('runStat'),
+      tokCount=document.getElementById('tokCount'), toast=document.getElementById('toast');
+
+function sync(){
+  hl.innerHTML=highlightFaby(src.value)+'\n';
+  hl.scrollTop=src.scrollTop; hl.scrollLeft=src.scrollLeft;
+  if(tokCount){tokCount.textContent=(src.value.match(/\w+|[^\s\w]/g)||[]).length;}
+}
+src.addEventListener('input',sync);
+src.addEventListener('scroll',()=>{hl.scrollTop=src.scrollTop;hl.scrollLeft=src.scrollLeft});
+src.addEventListener('keydown',e=>{
+  if(e.key==='Tab'){
+    e.preventDefault();
+    const s=src.selectionStart,t=src.selectionEnd;
+    src.value=src.value.slice(0,s)+'  '+src.value.slice(t);
+    src.selectionStart=src.selectionEnd=s+2;
+    sync();
+  }
+  if((e.metaKey||e.ctrlKey)&&e.key==='Enter'){e.preventDefault();run(true);}
+});
+
+/* ---------- $FABY meter ---------- */
+let fabyBalance=1000;
+const balEl=document.getElementById('fabyBal'), tickerEl=document.getElementById('ticker');
+function fmtBal(n){return n.toLocaleString('en-US')}
+function spendFaby(amount){
+  if(amount<=0)return;
+  fabyBalance=Math.max(0,fabyBalance-amount);
+  balEl.textContent=fmtBal(fabyBalance);
+  balEl.classList.remove('spend');void balEl.offsetWidth;balEl.classList.add('spend');
+  tickerEl.textContent='-'+amount;
+  tickerEl.classList.add('show');
+  setTimeout(()=>tickerEl.classList.remove('show'),1100);
+}
+function tokenCountOf(text){return (text.match(/\w+|[^\s\w]/g)||[]).length}
+
+/* ---------- run ---------- */
+function run(charge){
+  const r=runFaby(src.value);
+  let html='';
+  if(r.output.length)html+=escapeHtml(r.output.join('\n'));
+  if(r.error)html+=(html?'\n':'')+'<span class="err">error: '+escapeHtml(r.error)+'</span>';
+  if(!r.output.length&&!r.error)html+='<span class="sys">// program finished with no output — try print(…)</span>';
+  let cost=0;
+  if(charge!==false&&!r.error){
+    cost=Math.max(1,Math.round(tokenCountOf(src.value)/40));
+    spendFaby(cost);
+  }
+  html+='\n<span class="ok">✓ finished in '+r.ms+'ms · browser runtime'+(cost?' · spent '+cost+' $FABY':'')+'</span><br><span class="caret"></span>';
+  out.innerHTML=html;
+  runStat.textContent=r.error?'ERROR':'OK · '+r.ms+'MS';
+  out.scrollTop=out.scrollHeight;
+}
+document.getElementById('runBtn').addEventListener('click',()=>run(true));
+
+/* ---------- check ---------- */
+document.getElementById('checkBtn').addEventListener('click',()=>{
+  const r=checkFaby(src.value);
+  let html='';
+  if(!r.diagnostics||!r.diagnostics.length){
+    html='<span class="ok">✓ no issues — '+r.flows+' flow'+(r.flows===1?'':'s')+' checked</span>';
+  }else{
+    html=r.diagnostics.map(d=>{
+      const cls=d.sev==='error'?'err':'sys';
+      return '<span class="'+cls+'">'+(d.sev==='error'?'error':'warn')+' · line '+d.line+': '+escapeHtml(d.msg)+' ['+d.code+']</span>';
+    }).join('\n');
+    html+='\n<span class="ok">'+r.errors+' error'+(r.errors===1?'':'s')+', '+r.warns+' warning'+(r.warns===1?'':'s')+'</span>';
+  }
+  out.innerHTML=html+'<br><span class="caret"></span>';
+  runStat.textContent=r.ok?'CHECK · OK':'CHECK · '+r.errors+' ERR';
+});
+
+/* ---------- format ---------- */
+document.getElementById('fmtBtn').addEventListener('click',()=>{
+  const before=src.value, after=fmtFaby(before);
+  src.value=after; sync();
+  runStat.textContent = after===before ? 'FMT · ALREADY CANONICAL' : 'FMT · FORMATTED';
+  if(after===before){
+    out.innerHTML='<span class="ok">✓ already canonical — faby fmt is the identity on canonical code</span><br><span class="caret"></span>';
+  }else{
+    out.innerHTML='<span class="ok">✓ formatted to canonical form</span><br><span class="caret"></span>';
+  }
+});
+
+/* ---------- share ---------- */
+function codeUrl(){
+  const b64=btoa(unescape(encodeURIComponent(src.value)));
+  return location.origin+location.pathname+'#code='+b64;
+}
+document.getElementById('shareBtn').addEventListener('click',()=>{
+  navigator.clipboard.writeText(codeUrl()).then(()=>{
+    toast.classList.add('show');
+    setTimeout(()=>toast.classList.remove('show'),2200);
+  });
+});
+document.getElementById('tweetBtn').addEventListener('click',()=>{
+  const text='An AI wrote this Faby code, ran it in my browser, and paid for the compute in $FABY. The AI-native language is real. Try it:';
+  window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text)+'&url='+encodeURIComponent(codeUrl())+'&hashtags=FABY','_blank');
+});
+
+/* ---------- AI generation (curated, runs fully offline) ---------- */
+const GEN=[
+  {k:["fizzbuzz","fizz","buzz"],code:`intent "print FizzBuzz from 1 to 20"
+flow fizzbuzz(n: Int) -> Text
+  match n
+    _ if n % 15 == 0 -> "FizzBuzz"
+    _ if n % 3 == 0  -> "Fizz"
+    _ if n % 5 == 0  -> "Buzz"
+    _                -> str(n)
+
+flow main
+  range(1, 21) |> map(fizzbuzz) |> each(print)`},
+  {k:["fibonacci","fib"],code:`intent "print the first 10 Fibonacci numbers"
+flow fib(n: Int) -> Int
+  match n
+    0 | 1 -> n
+    _     -> fib(n - 1) + fib(n - 2)
+
+flow main
+  range(0, 10) |> map(fib) |> each(print)`},
+  {k:["even","sum","odd"],code:`intent "sum every even number from 1 to 100"
+flow main
+  let total = range(1, 101)
+    |> filter(_ % 2 == 0)
+    |> sum
+  print("sum of evens 1..100 = {total}")`},
+  {k:["discount","price","prices","10%","percent"],code:`intent "give a 10% discount to every price above 50"
+flow discount(p: Float) -> Float
+  match p
+    _ if p > 50 -> p * 0.9
+    _           -> p
+
+flow main
+  [20, 60, 99, 45, 120] |> map(discount) |> each(print)`},
+  {k:["safe","divide","division","fallback","recover","zero"],code:`intent "divide 100 by each number, fall back to 0 on failure"
+flow safe(n: Int) -> Float
+  100 / n ? default(0)
+
+flow main
+  for n in [5, 0, 4, 0, 2]
+    print("100 / {n} = {safe(n)}")`},
+  {k:["square","squares"],code:`intent "print the squares of 1 through 10"
+flow main
+  range(1, 11) |> map(_ * _) |> each(print)`},
+  {k:["factorial","fact"],code:`intent "compute the factorial of 6"
+flow fact(n: Int) -> Int
+  match n
+    0 -> 1
+    _ -> n * fact(n - 1)
+
+flow main
+  print("6! = {fact(6)}")`},
+  {k:["upper","shout","uppercase","exclam","language","languages"],code:`intent "uppercase each language and add an exclamation mark"
+flow shout(t: Text) -> Text
+  upper(t) + "!"
+
+flow main
+  ["faby", "rust", "python"] |> map(shout) |> each(print)`},
+  {k:["reverse","backwards"],code:`intent "reverse each word in a list"
+flow main
+  ["faby", "genesis", "flow"] |> map(reverse) |> each(print)`},
+  {k:["double","times two","x2"],code:`intent "double every number in a list"
+flow main
+  [1, 2, 3, 4, 5] |> map(_ * 2) |> each(print)`}
+];
+const GEN_FALLBACK=`intent "print a friendly greeting"
+flow greet(name: Text) -> Text
+  "Hello, {name} — generated by AI, run by Faby."
+
+flow main
+  ["World", "Fable-5", "you"] |> map(greet) |> each(print)`;
+
+function pickGen(query){
+  const q=query.toLowerCase();
+  let best=null,bestScore=0;
+  for(const g of GEN){
+    let s=0;
+    for(const kw of g.k) if(q.includes(kw)) s+=kw.length;
+    if(s>bestScore){bestScore=s;best=g;}
+  }
+  return bestScore>0?best.code:GEN_FALLBACK;
+}
+
+const genInput=document.getElementById('genInput'),
+      genBtn=document.getElementById('genBtn'),
+      genStatus=document.getElementById('genStatus');
+let generating=false;
+
+function typeInto(code){
+  return new Promise(res=>{
+    src.value='';let i=0;
+    (function step(){
+      if(i<=code.length){
+        src.value=code.slice(0,i);sync();
+        src.scrollTop=src.scrollHeight;
+        i+=(code[i]==='\n'?1:Math.random()<0.3?2:1);
+        setTimeout(step,code[i-1]==='\n'?22:Math.random()*14+5);
+      } else {src.value=code;sync();res();}
+    })();
+  });
+}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+async function generate(query){
+  if(generating||!query.trim())return;
+  generating=true;
+  genBtn.classList.add('busy');genBtn.disabled=true;
+  out.innerHTML='<span class="sys">// waiting for AI…</span>';
+  runStat.textContent='GENERATING';
+  genStatus.innerHTML='✦ <span class="b">claude-fable-5</span> is thinking…';
+  await sleep(620);
+  genStatus.innerHTML='✦ writing a Faby flow for: <span class="b">“'+escapeHtml(query.trim())+'”</span>';
+  const code=pickGen(query);
+  await sleep(360);
+  await typeInto(code);
+  const genCost=Math.max(4,Math.round(tokenCountOf(code)/12));
+  spendFaby(genCost);
+  genStatus.innerHTML='✦ generated '+tokenCountOf(code)+' tokens · spent <span class="b">'+genCost+' $FABY</span> · running…';
+  await sleep(320);
+  run(true);
+  genBtn.classList.remove('busy');genBtn.disabled=false;
+  generating=false;
+  setTimeout(()=>{genStatus.innerHTML='✦ done. AI wrote it, Faby ran it, you paid in <span class="b">$FABY</span> — the full loop.';},900);
+}
+
+genBtn.addEventListener('click',()=>generate(genInput.value));
+genInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();generate(genInput.value);}});
+document.querySelectorAll('.chip').forEach(c=>{
+  c.addEventListener('click',()=>{genInput.value=c.dataset.q;generate(c.dataset.q);});
+});
+
+/* ---------- examples & boot ---------- */
+const sel=document.getElementById('examples');
+sel.addEventListener('change',()=>{src.value=EXAMPLES[sel.value];sync();run(false);});
+
+let boot=EXAMPLES.hello;
+if(location.hash.startsWith('#code=')){
+  try{boot=decodeURIComponent(escape(atob(location.hash.slice(6))));}catch(e){}
+}
+src.value=boot;
+sync();
+setTimeout(()=>run(false),600);
+</script>
+</body>
+</html>

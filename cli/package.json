@@ -1,0 +1,33 @@
+{
+  "name": "@fabycode/cli",
+  "version": "0.4.1",
+  "description": "The Faby CLI — run Faby, the AI-native programming language designed by Claude Fable-5. Flows, pipelines, pattern matching, contracts and recovery operators, in one command.",
+  "license": "MIT",
+  "homepage": "https://faby.codes",
+  "bugs": { "url": "https://x.com/fabylanguage" },
+  "keywords": [
+    "faby",
+    "programming-language",
+    "ai",
+    "ai-native",
+    "interpreter",
+    "cli",
+    "claude",
+    "fable-5",
+    "flows",
+    "pipelines"
+  ],
+  "bin": { "faby": "bin/faby.js" },
+  "main": "lib/interpreter.js",
+  "files": [
+    "bin/",
+    "lib/",
+    "examples/",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "test": "node test/run.js"
+  }
+}
